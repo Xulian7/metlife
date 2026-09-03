@@ -12,3 +12,5 @@ Variables requeridas:
 - `PGSSLMODE=require`
 
 El archivo `railway.json` ejecuta migraciones, collectstatic y Gunicorn en el arranque. En produccion use PostgreSQL de Railway y no guarde secretos en el repositorio.
+
+Gunicorn debe escuchar en `0.0.0.0:$PORT`; Railway no expone aplicaciones que se quedan en el puerto local por defecto.
