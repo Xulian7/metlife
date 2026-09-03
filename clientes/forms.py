@@ -31,6 +31,7 @@ class ClienteForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["fondo_pensiones"].empty_label = "Seleccione fondo pensional"
         self.fields["estado_relacion"].empty_label = "Seleccione estado"
+        self.fields["sexo"].widget = forms.Select(choices=[("", "Seleccione genero"), ("hombre", "Hombre"), ("mujer", "Mujer")])
         if not self.instance.pk:
             from .models import ClienteEstado
 

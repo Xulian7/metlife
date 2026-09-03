@@ -4,12 +4,13 @@ from django import forms
 class BrechasBasicoForm(forms.Form):
     escenario = forms.ChoiceField(
         choices=[
+            ("automatico", "Automatico por semanas"),
             ("comparativo", "Comparativo completo"),
             ("ley_100", "Panorama Ley 100"),
             ("reforma", "Panorama Reforma"),
         ],
         widget=forms.RadioSelect,
-        initial="comparativo",
+        initial="automatico",
         label="Escenario",
     )
     fecha_nacimiento = forms.DateField(
@@ -19,8 +20,8 @@ class BrechasBasicoForm(forms.Form):
     )
     sexo = forms.ChoiceField(
         required=False,
-        label="Sexo",
-        choices=[("", "Sin informar"), ("femenino", "Femenino"), ("masculino", "Masculino")],
+        label="Genero",
+        choices=[("", "Seleccione genero"), ("hombre", "Hombre"), ("mujer", "Mujer")],
     )
     edad_actual = forms.DecimalField(
         max_digits=5,

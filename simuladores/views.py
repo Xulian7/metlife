@@ -55,13 +55,17 @@ class SimulacionDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         resultados = self.object.resultados_json or {}
         exclude = {"engine_version", "ruleset_version", "contexto"}
+        regimen_aplicado = resultados.get("regimen_aplicado", "")
+        is_reforma_result = self.object.tipo == "brechas_panorama_reforma" or str(regimen_aplicado).startswith("Reforma")
+        ley100_source = resultados.get("ley_100") or (None if is_reforma_result else resultados)
+        reforma_source = resultados.get("reforma") or (resultados if is_reforma_result else None)
         context.update(
             {
                 "resumen_rows": table_rows(resultados.get("resumen") or resultados.get("contexto"), exclude=exclude),
                 "contexto_rows": table_rows(resultados.get("contexto"), exclude=exclude),
                 "comparison_rows": table_rows(resultados.get("comparacion"), exclude=exclude),
-                "ley100_rows": table_rows(resultados.get("ley_100") or resultados, exclude=exclude),
-                "reforma_rows": table_rows(resultados.get("reforma"), exclude=exclude),
+                "ley100_rows": table_rows(ley100_source, exclude=exclude),
+                "reforma_rows": table_rows(reforma_source, exclude=exclude),
                 "projection_rows": resultados.get("proyecciones", []),
                 "alerts": resultados.get("alertas", []),
                 "sources": resultados.get("fuentes", []),

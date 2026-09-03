@@ -5,11 +5,14 @@ from decimal import Decimal, ROUND_HALF_UP
 from .models import FondoPensiones
 
 
-ENGINE_VERSION = "0.3.0"
+ENGINE_VERSION = "0.4.0"
 RULESET_VERSION = "colombia-pensiones-2026-09-borrador"
 WEEKS_PER_YEAR = Decimal("52")
 RPM_REQUIRED_WEEKS = Decimal("1300")
 RAIS_MINIMUM_GUARANTEE_WEEKS = Decimal("1150")
+TRANSITION_WEEKS_WOMEN = Decimal("750")
+TRANSITION_WEEKS_MEN = Decimal("900")
+TRANSITION_CUTOFF_DATE = date(2025, 6, 30)
 
 FONDOS_PENSIONES_COLOMBIA_2026 = [
     {
@@ -102,14 +105,18 @@ def calculate_age(born: date | None, today: date | None = None) -> Decimal | Non
 def normalizar_sexo(sexo: str) -> str:
     value = (sexo or "").strip().lower()
     if value in {"f", "femenino", "mujer"}:
-        return "femenino"
+        return "mujer"
     if value in {"m", "masculino", "hombre"}:
-        return "masculino"
+        return "hombre"
     return "no_informado"
 
 
 def edad_pension_referencia(sexo: str) -> Decimal:
-    return Decimal("57") if normalizar_sexo(sexo) == "femenino" else Decimal("62")
+    return Decimal("57") if normalizar_sexo(sexo) == "mujer" else Decimal("62")
+
+
+def semanas_transicion_requeridas(sexo: str) -> Decimal:
+    return TRANSITION_WEEKS_WOMEN if normalizar_sexo(sexo) == "mujer" else TRANSITION_WEEKS_MEN
 
 
 def weeks_from_years(years: Decimal) -> Decimal:
@@ -129,6 +136,8 @@ def pension_context(inputs: PensionInputs) -> dict:
     edad = inputs.edad_actual if inputs.edad_actual is not None else calculate_age(inputs.fecha_nacimiento)
     edad_ref = edad_pension_referencia(inputs.sexo)
     semanas_actuales = weeks_from_years(inputs.anios_cotizados)
+    semanas_transicion = semanas_transicion_requeridas(inputs.sexo)
+    cumple_transicion = semanas_actuales >= semanas_transicion
     semanas_futuras = weeks_from_years(inputs.anios_por_cotizar) * (inputs.meses_cotizados_anio / Decimal("12"))
     semanas_proyectadas = semanas_actuales + semanas_futuras
     years_to_1300 = years_until_weeks(semanas_actuales, RPM_REQUIRED_WEEKS, inputs.meses_cotizados_anio)
@@ -141,6 +150,15 @@ def pension_context(inputs: PensionInputs) -> dict:
         "edad_actual": number(edad) if edad is not None else None,
         "edad_requisito_rpm": edad_ref,
         "semanas_actuales": number(semanas_actuales),
+        "fecha_corte_transicion": TRANSITION_CUTOFF_DATE.isoformat(),
+        "semanas_requeridas_transicion_ley_2381": number(semanas_transicion),
+        "cumple_regimen_transicion_ley_2381": cumple_transicion,
+        "regimen_simulacion_recomendado": "Ley 100 / Ley 797" if cumple_transicion else "Reforma pensional consultiva",
+        "fundamento_decision_regimen": (
+            "Cumple semanas de transicion: conserva reglas Ley 100 segun articulo 75 Ley 2381."
+            if cumple_transicion
+            else "No alcanza semanas de transicion; se muestra Reforma como escenario consultivo sujeto a estado juridico."
+        ),
         "semanas_proyectadas": number(semanas_proyectadas),
         "semanas_faltantes_rpm": number(max(RPM_REQUIRED_WEEKS - semanas_actuales, Decimal("0"))),
         "semanas_faltantes_rais_garantia": number(max(RAIS_MINIMUM_GUARANTEE_WEEKS - semanas_actuales, Decimal("0"))),
@@ -149,6 +167,23 @@ def pension_context(inputs: PensionInputs) -> dict:
         "cumple_semanas_rpm_proyectadas": semanas_proyectadas >= RPM_REQUIRED_WEEKS,
         "cumple_garantia_minima_rais_proyectada": semanas_proyectadas >= RAIS_MINIMUM_GUARANTEE_WEEKS,
     }
+
+
+def calcular_panorama_automatico(inputs: PensionInputs) -> dict:
+    contexto = pension_context(inputs)
+    if contexto["cumple_regimen_transicion_ley_2381"]:
+        result = calcular_panorama_ley_100(inputs)
+        result["tipo_decision"] = "automatico_por_semanas"
+        result["regimen_aplicado"] = "Ley 100 / Ley 797"
+        result["fundamento_decision_regimen"] = contexto["fundamento_decision_regimen"]
+        result["fuentes"] = OFFICIAL_SOURCES
+        return result
+    result = calcular_panorama_reforma(inputs)
+    result["tipo_decision"] = "automatico_por_semanas"
+    result["regimen_aplicado"] = "Reforma pensional consultiva"
+    result["fundamento_decision_regimen"] = contexto["fundamento_decision_regimen"]
+    result["fuentes"] = OFFICIAL_SOURCES
+    return result
 
 
 def calcular_panorama_ley_100(inputs: PensionInputs) -> dict:
@@ -238,6 +273,9 @@ def calcular_comparativo_pensional(inputs: PensionInputs) -> dict:
             "edad_actual": contexto["edad_actual"],
             "edad_requisito_rpm": contexto["edad_requisito_rpm"],
             "semanas_actuales": contexto["semanas_actuales"],
+            "semanas_requeridas_transicion_ley_2381": contexto["semanas_requeridas_transicion_ley_2381"],
+            "cumple_regimen_transicion_ley_2381": contexto["cumple_regimen_transicion_ley_2381"],
+            "regimen_simulacion_recomendado": contexto["regimen_simulacion_recomendado"],
             "semanas_proyectadas": contexto["semanas_proyectadas"],
             "fondo_actual": "",
         },
@@ -283,6 +321,10 @@ def build_alerts(inputs: PensionInputs, contexto: dict) -> list[str]:
     alerts = []
     if contexto["sexo_normalizado"] == "no_informado":
         alerts.append("Sexo no informado: se usa edad de referencia conservadora de 62 anos. Completar este dato mejora la proyeccion.")
+    if contexto["cumple_regimen_transicion_ley_2381"]:
+        alerts.append("Cumple umbral de transicion Ley 2381: se debe conservar simulacion bajo Ley 100 / Ley 797, validando semanas al 30 de junio de 2025.")
+    else:
+        alerts.append("No cumple umbral de transicion Ley 2381 con las semanas informadas; la Reforma se muestra como escenario consultivo por estado juridico.")
     if not contexto["cumple_semanas_rpm_proyectadas"]:
         alerts.append("Con la densidad de cotizacion indicada no se proyectan 1.300 semanas para RPM; revisar alternativas o continuidad de aportes.")
     if not contexto["cumple_garantia_minima_rais_proyectada"]:
@@ -318,6 +360,11 @@ OFFICIAL_SOURCES = [
         "nombre": "Corte Constitucional C-327 de 2025",
         "url": "https://www.corteconstitucional.gov.co/relatoria/2025/C-327-25.htm",
         "nota": "Reitera suspension con excepciones de Ley 2381 de 2024.",
+    },
+    {
+        "nombre": "Ley 2381 de 2024 - regimen de transicion",
+        "url": "https://normativa.colpensiones.gov.co/compilacion/docs/ley_2381_2024.htm",
+        "nota": "Articulo 75: 750 semanas mujeres y 900 semanas hombres para conservar Ley 100.",
     },
     {
         "nombre": "Corte Constitucional C-054 de 2024",

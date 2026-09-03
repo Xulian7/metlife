@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.test import TestCase
 
 from .models import FondoPensiones
-from .services import PensionInputs, calcular_comparativo_pensional, calcular_panorama_ley_100, calcular_panorama_reforma, ensure_default_pension_funds
+from .services import PensionInputs, calcular_comparativo_pensional, calcular_panorama_automatico, calcular_panorama_ley_100, calcular_panorama_reforma, ensure_default_pension_funds
 
 
 class PensionEngineTests(TestCase):
@@ -54,12 +54,45 @@ class PensionEngineTests(TestCase):
                 anios_por_cotizar=Decimal("18"),
                 meses_cotizados_anio=Decimal("9"),
                 smmlv=Decimal("1423500"),
-                sexo="femenino",
+                sexo="mujer",
             )
         )
         self.assertEqual(result["contexto"]["edad_requisito_rpm"], Decimal("57"))
         self.assertEqual(result["contexto"]["semanas_actuales"], Decimal("624.00"))
         self.assertEqual(len(result["proyecciones"]), 4)
         self.assertIn("fuentes", result)
+
+    def test_transition_threshold_decides_automatic_regime_by_gender(self):
+        woman = PensionInputs(
+            ingreso_mensual=Decimal("4000000"),
+            ibc_actual=Decimal("3000000"),
+            ibc_ultimos_10_anios=Decimal("2800000"),
+            anios_cotizados=Decimal("14.4230769231"),
+            anios_por_cotizar=Decimal("18"),
+            smmlv=Decimal("1423500"),
+            sexo="mujer",
+        )
+        man = PensionInputs(
+            ingreso_mensual=Decimal("4000000"),
+            ibc_actual=Decimal("3000000"),
+            ibc_ultimos_10_anios=Decimal("2800000"),
+            anios_cotizados=Decimal("17.3076923077"),
+            anios_por_cotizar=Decimal("18"),
+            smmlv=Decimal("1423500"),
+            sexo="hombre",
+        )
+        below_threshold = PensionInputs(
+            ingreso_mensual=Decimal("4000000"),
+            ibc_actual=Decimal("3000000"),
+            ibc_ultimos_10_anios=Decimal("2800000"),
+            anios_cotizados=Decimal("10"),
+            anios_por_cotizar=Decimal("18"),
+            smmlv=Decimal("1423500"),
+            sexo="hombre",
+        )
+
+        self.assertEqual(calcular_panorama_automatico(woman)["regimen_aplicado"], "Ley 100 / Ley 797")
+        self.assertEqual(calcular_panorama_automatico(man)["regimen_aplicado"], "Ley 100 / Ley 797")
+        self.assertEqual(calcular_panorama_automatico(below_threshold)["regimen_aplicado"], "Reforma pensional consultiva")
 
 # Create your tests here.

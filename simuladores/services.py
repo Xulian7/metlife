@@ -6,6 +6,7 @@ from pensiones.services import (
     PensionInputs,
     RULESET_VERSION,
     calcular_comparativo_pensional,
+    calcular_panorama_automatico,
     calcular_panorama_ley_100,
     calcular_panorama_reforma,
 )
@@ -32,7 +33,7 @@ def to_jsonable(value):
 
 
 def run_excel_brechas_basico(*, cliente, consultor, inputs: dict, observaciones: str = "") -> Simulacion:
-    escenario = inputs.get("escenario", "comparativo")
+    escenario = inputs.get("escenario", "automatico")
     pension_inputs = PensionInputs(
         ingreso_mensual=to_decimal(inputs["ingreso_mensual"]),
         ibc_actual=to_decimal(inputs["ibc_actual"]),
@@ -50,7 +51,10 @@ def run_excel_brechas_basico(*, cliente, consultor, inputs: dict, observaciones:
         factor_capital_fedesarrollo=to_decimal(inputs.get("factor_capital_fedesarrollo"), "377"),
         tasa_aporte_acumulacion=to_decimal(inputs.get("tasa_aporte_acumulacion"), "0.115"),
     )
-    if escenario == "ley_100":
+    if escenario == "automatico":
+        resultados = calcular_panorama_automatico(pension_inputs)
+        tipo = "brechas_regimen_automatico"
+    elif escenario == "ley_100":
         resultados = calcular_panorama_ley_100(pension_inputs)
         tipo = "brechas_panorama_ley_100"
     elif escenario == "reforma":

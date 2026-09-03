@@ -15,6 +15,9 @@
         <label class="tab-option">{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>
       {% endfor %}
     </div>
+    <div class="scenario-note" data-scenario="automatico">
+      Decide el regimen por semanas: mujeres con 750 o mas y hombres con 900 o mas conservan Ley 100; si no cumple, muestra Reforma como escenario consultivo sujeto a vigencia.
+    </div>
     <div class="scenario-note" data-scenario="comparativo">
       Calcula Ley 100, Reforma, brechas, semanas, alertas y proyecciones con densidad de 12, 9, 6 y 0 meses cotizados al ano.
     </div>
@@ -65,7 +68,7 @@
   const yearsFuture = document.querySelector('[name="anios_por_cotizar"]');
   const monthsPerYear = document.querySelector('[name="meses_cotizados_anio"]');
   function syncScenario() {
-    const selected = document.querySelector('input[name="escenario"]:checked')?.value || 'comparativo';
+    const selected = document.querySelector('input[name="escenario"]:checked')?.value || 'automatico';
     notes.forEach(note => note.hidden = note.dataset.scenario !== selected);
     if (capitalRow) capitalRow.hidden = selected === 'ley_100';
   }
