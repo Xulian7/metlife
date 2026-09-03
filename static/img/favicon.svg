@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Consultoria 360">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0057a3"/>
+      <stop offset="1" stop-color="#00856f"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="52" height="52" rx="14" fill="url(#g)"/>
+  <circle cx="32" cy="32" r="18" fill="none" stroke="#ffffff" stroke-width="6" opacity=".92"/>
+  <path d="M32 18 V32 L43 39" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="46" cy="18" r="5" fill="#f3c967"/>
+</svg>

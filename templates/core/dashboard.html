@@ -7,6 +7,9 @@
   </div>
   <a class="button" href="{% url 'clientes:create' %}">Nuevo cliente</a>
 </section>
+<section class="dashboard-visual" aria-label="Resumen visual de consultoría pensional">
+  <img src="{% static 'img/dashboard-top.svg' %}" alt="">
+</section>
 <section class="kpis">
   <article><span>Clientes</span><strong>{{ clientes_total }}</strong></article>
   <article><span>Clientes activos</span><strong>{{ clientes_activos }}</strong></article>

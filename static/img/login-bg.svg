@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-label="Fondo corporativo para inicio de sesion">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#071d35"/>
+      <stop offset=".55" stop-color="#0d3155"/>
+      <stop offset="1" stop-color="#0f4b47"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".06"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <g opacity=".16" stroke="#ffffff" stroke-width="1">
+    <path d="M0 190 H1920"/>
+    <path d="M0 350 H1920"/>
+    <path d="M0 510 H1920"/>
+    <path d="M0 670 H1920"/>
+    <path d="M0 830 H1920"/>
+    <path d="M280 0 V1080"/>
+    <path d="M560 0 V1080"/>
+    <path d="M840 0 V1080"/>
+    <path d="M1120 0 V1080"/>
+    <path d="M1400 0 V1080"/>
+    <path d="M1680 0 V1080"/>
+  </g>
+  <path d="M132 780 C360 650 472 720 682 596 C912 460 1050 500 1274 382 C1450 290 1624 310 1788 212" fill="none" stroke="#7ed7c4" stroke-width="7" opacity=".58"/>
+  <path d="M158 850 C390 778 520 822 746 706 C958 596 1128 640 1344 528 C1538 428 1664 454 1810 370" fill="none" stroke="#8dbdf0" stroke-width="5" opacity=".45"/>
+  <g transform="translate(1090 250)" opacity=".78">
+    <rect width="520" height="340" rx="26" fill="url(#panel)" stroke="#ffffff" stroke-opacity=".16"/>
+    <rect x="52" y="62" width="190" height="18" rx="9" fill="#ffffff" opacity=".38"/>
+    <rect x="52" y="116" width="394" height="14" rx="7" fill="#ffffff" opacity=".22"/>
+    <rect x="52" y="158" width="322" height="14" rx="7" fill="#ffffff" opacity=".18"/>
+    <rect x="52" y="216" width="80" height="64" rx="12" fill="#7ed7c4" opacity=".44"/>
+    <rect x="156" y="184" width="80" height="96" rx="12" fill="#8dbdf0" opacity=".42"/>
+    <rect x="260" y="136" width="80" height="144" rx="12" fill="#f3c967" opacity=".44"/>
+  </g>
+</svg>
