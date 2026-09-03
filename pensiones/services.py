@@ -14,6 +14,89 @@ TRANSITION_WEEKS_WOMEN = Decimal("750")
 TRANSITION_WEEKS_MEN = Decimal("900")
 TRANSITION_CUTOFF_DATE = date(2025, 6, 30)
 
+PENSION_GLOSSARY = [
+    {
+        "termino": "RPM",
+        "nombre": "Régimen de Prima Media",
+        "definicion": "Régimen público administrado por Colpensiones. La pensión depende de edad, semanas cotizadas y reglas de liquidación aplicables, no de una cuenta individual del afiliado.",
+    },
+    {
+        "termino": "RAIS",
+        "nombre": "Régimen de Ahorro Individual con Solidaridad",
+        "definicion": "Régimen administrado por fondos privados. La prestación depende principalmente del capital acumulado, rendimientos, bono pensional si aplica y modalidad de pensión.",
+    },
+    {
+        "termino": "ACCAI",
+        "nombre": "Administradora del Componente Complementario de Ahorro Individual",
+        "definicion": "Figura asociada al sistema de pilares de la Ley 2381. En esta plataforma se muestra como escenario consultivo mientras se valida su aplicación jurídica plena.",
+    },
+    {
+        "termino": "IBC",
+        "nombre": "Ingreso Base de Cotización",
+        "definicion": "Valor sobre el cual se calculan los aportes a seguridad social. No siempre coincide con el ingreso total ni con el salario recibido.",
+    },
+    {
+        "termino": "IBL",
+        "nombre": "Ingreso Base de Liquidación",
+        "definicion": "Promedio usado para liquidar una prestación pensional según la regla aplicable. Requiere historia laboral y parámetros de actualización cuando corresponda.",
+    },
+    {
+        "termino": "SMMLV",
+        "nombre": "Salario Mínimo Mensual Legal Vigente",
+        "definicion": "Parámetro legal usado como referencia para mesada mínima, topes y cálculos comparativos. Debe mantenerse versionado por año.",
+    },
+    {
+        "termino": "Semanas cotizadas",
+        "nombre": "Tiempo reconocido de cotización",
+        "definicion": "Unidad usada para verificar requisitos pensionales. En proyecciones simples se estima desde años cotizados, pero una historia laboral real debe validar periodos y novedades.",
+    },
+    {
+        "termino": "Régimen de transición",
+        "nombre": "Conservación de reglas anteriores",
+        "definicion": "Condición que permite conservar reglas de Ley 100/Ley 797 frente a la Ley 2381 si se cumplen semanas mínimas al corte legal: 750 para mujeres y 900 para hombres.",
+    },
+    {
+        "termino": "Pensión de invalidez",
+        "nombre": "Prestación por pérdida de capacidad laboral",
+        "definicion": "Estimación de ingreso pensional ante invalidez. El reconocimiento real depende de origen, porcentaje de pérdida, semanas, fecha de estructuración y entidad competente.",
+    },
+    {
+        "termino": "Pensión de sobrevivencia",
+        "nombre": "Prestación para beneficiarios",
+        "definicion": "Estimación del ingreso que podrían recibir beneficiarios ante fallecimiento del afiliado o pensionado, sujeto a requisitos y beneficiarios acreditados.",
+    },
+    {
+        "termino": "Brecha de invalidez",
+        "nombre": "Diferencia ante invalidez",
+        "definicion": "Diferencia entre el ingreso mensual objetivo del cliente y la pensión estimada por invalidez. Ayuda a dimensionar necesidad de protección complementaria.",
+    },
+    {
+        "termino": "Brecha de fallecimiento",
+        "nombre": "Diferencia ante fallecimiento",
+        "definicion": "Diferencia entre el ingreso mensual objetivo del hogar y la pensión estimada de sobrevivencia. Sirve para estimar necesidad de capital o cobertura.",
+    },
+    {
+        "termino": "Brecha de vejez",
+        "nombre": "Diferencia en retiro",
+        "definicion": "Diferencia entre el ingreso mensual objetivo y la pensión estimada de vejez en cada panorama. Permite comparar escenarios de retiro.",
+    },
+    {
+        "termino": "Capital Fedesarrollo",
+        "nombre": "Referencia de capital para estimación",
+        "definicion": "Factor usado por el simulador como referencia funcional para convertir capital proyectado en una mesada estimada. Es un supuesto de simulación, no una liquidación oficial.",
+    },
+    {
+        "termino": "Capital de brecha",
+        "nombre": "Capital necesario estimado",
+        "definicion": "Resultado de multiplicar una brecha mensual por un factor de capital. Sirve como aproximación comercial y financiera de protección, no como obligación legal.",
+    },
+    {
+        "termino": "Densidad de cotización",
+        "nombre": "Meses cotizados por año",
+        "definicion": "Supuesto que indica cuántos meses al año seguirá cotizando la persona. La simulación muestra impactos para 12, 9, 6 y 0 meses.",
+    },
+]
+
 FONDOS_PENSIONES_COLOMBIA_2026 = [
     {
         "nombre": "Colpensiones",

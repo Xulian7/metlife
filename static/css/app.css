@@ -98,10 +98,15 @@ textarea { min-height: 90px; }
 .module-card table th:first-child, .module-card table td:first-child { padding-left: 18px; }
 .module-card table th:last-child, .module-card table td:last-child { padding-right: 18px; }
 .module-card .source-list { padding: 16px 18px; }
+.glossary-grid { display: grid; grid-template-columns: repeat(2, minmax(260px, 1fr)); gap: 12px; padding: 16px 18px; }
+.glossary-item { border: 1px solid var(--line); border-radius: 8px; padding: 13px; background: #ffffff; }
+.glossary-item strong { display: inline-flex; align-items: center; min-height: 24px; color: var(--brand-dark); font-size: 14px; }
+.glossary-item span { display: block; margin-top: 3px; color: var(--ink); font-weight: 800; font-size: 13px; }
+.glossary-item p { margin: 8px 0 0; color: var(--muted); line-height: 1.42; font-size: 13px; }
 @media (max-width: 860px) {
   body { grid-template-columns: 1fr; }
   .sidebar { position: static; }
-  .kpis, .grid-two, .simulator-grid, .result-grid { grid-template-columns: 1fr; }
+  .kpis, .grid-two, .simulator-grid, .result-grid, .glossary-grid { grid-template-columns: 1fr; }
   .hero, .topbar { align-items: flex-start; flex-direction: column; }
   .form-grid p, .form-columns, .facts { grid-template-columns: 1fr; }
 }

@@ -94,6 +94,19 @@
   </details>
 {% endif %}
 
+<details class="panel module-card" open>
+  <summary><span class="module-icon" aria-hidden="true">?</span><h2>Términos usados en la simulación</h2></summary>
+  <div class="glossary-grid">
+    {% for item in glossary %}
+      <article class="glossary-item">
+        <strong>{{ item.termino }}</strong>
+        <span>{{ item.nombre }}</span>
+        <p>{{ item.definicion }}</p>
+      </article>
+    {% endfor %}
+  </div>
+</details>
+
 <section class="result-grid">
   <details class="panel module-card" open>
     <summary><span class="module-icon" aria-hidden="true">§</span><h2>Panorama Ley 100</h2></summary>

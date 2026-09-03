@@ -5,6 +5,7 @@ from django.views.generic import DetailView, ListView
 from decimal import Decimal, InvalidOperation
 
 from clientes.models import Cliente
+from pensiones.services import PENSION_GLOSSARY
 
 from .forms import BrechasBasicoForm
 from .models import Simulacion
@@ -174,6 +175,7 @@ class SimulacionDetailView(LoginRequiredMixin, DetailView):
                 "projection_rows": projection_rows(resultados.get("proyecciones", [])),
                 "alerts": resultados.get("alertas", []),
                 "sources": resultados.get("fuentes", []),
+                "glossary": PENSION_GLOSSARY,
                 "inputs_rows": table_rows(self.object.inputs_json),
             }
         )
