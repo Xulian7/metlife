@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="panel">
-  <h1>{{ view.model._meta.verbose_name|capfirst }}</h1>
+  <h1>Formulario</h1>
   <form method="post" enctype="multipart/form-data" class="form-grid">
     {% csrf_token %}
     {{ form.as_p }}
