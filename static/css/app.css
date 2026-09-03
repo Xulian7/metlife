@@ -14,6 +14,7 @@ h1 { font-size: 30px; margin: 0; }
 h2 { margin-top: 0; font-size: 20px; }
 .button, button { border: 0; border-radius: 6px; background: var(--brand); color: white; padding: 10px 14px; font-weight: 700; cursor: pointer; display: inline-block; }
 .button.secondary, button.ghost { background: white; color: var(--ink); border: 1px solid var(--line); }
+.button.tertiary { background: #f8fafc; color: var(--brand-dark); border: 1px solid var(--line); padding: 8px 11px; }
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)); gap: 14px; margin-bottom: 18px; }
 .kpis article, .panel, .form-section { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 18px; box-shadow: var(--shadow); }
 .kpis span { color: var(--muted); display: block; }
@@ -23,6 +24,21 @@ table { width: 100%; border-collapse: collapse; }
 th, td { border-bottom: 1px solid var(--line); text-align: left; padding: 11px; vertical-align: top; }
 th { color: #344054; font-size: 13px; }
 td small, th small { color: var(--muted); }
+.data-panel { padding: 0; overflow: hidden; }
+.table-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px; border-bottom: 1px solid var(--line); background: #fbfcfe; }
+.table-toolbar h2 { margin: 0; font-size: 18px; }
+.table-toolbar p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+.data-table { font-variant-numeric: tabular-nums; }
+.data-table thead th { position: sticky; top: 0; z-index: 1; background: #f8fafc; border-bottom: 1px solid #cfd8e3; text-transform: uppercase; letter-spacing: 0; font-size: 11px; }
+.data-table tbody tr { transition: background .16s ease; }
+.data-table tbody tr:hover { background: #f6faff; }
+.data-table td { height: 50px; }
+.primary-cell strong, .primary-cell small, .simulation-table td small { display: block; }
+.primary-cell strong { color: var(--ink); }
+.status-pill { display: inline-block; max-width: 100%; border: 1px solid #b8d5ee; background: #eef7ff; color: var(--brand-dark); border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 800; margin-bottom: 5px; }
+.date-cell, .actions-cell { text-align: center; white-space: nowrap; }
+.number-cell { text-align: right; white-space: nowrap; }
+.empty-cell { text-align: center; color: var(--muted); padding: 28px; }
 .badge { display: inline-block; border-radius: 999px; background: #e6f4f1; color: #006b5b; padding: 4px 9px; font-size: 12px; font-weight: 700; }
 .form-grid p { display: grid; grid-template-columns: 220px 1fr; gap: 12px; align-items: center; }
 input, select, textarea { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px; font: inherit; background: white; }

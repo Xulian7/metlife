@@ -24,6 +24,16 @@ class Simulacion(models.Model):
     def __str__(self) -> str:
         return f"{self.tipo} - {self.cliente} - {self.fecha:%Y-%m-%d}"
 
+    @property
+    def tipo_label(self) -> str:
+        labels = {
+            "brechas_regimen_automatico": "Automático por semanas",
+            "brechas_pensional_comparativo": "Comparativo pensional",
+            "brechas_panorama_ley_100": "Panorama Ley 100",
+            "brechas_panorama_reforma": "Panorama Reforma",
+        }
+        return labels.get(self.tipo, self.tipo.replace("_", " ").capitalize())
+
     def get_absolute_url(self):
         return reverse("simuladores:detail", args=[self.pk])
 

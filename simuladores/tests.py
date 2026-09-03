@@ -47,7 +47,7 @@ class SimuladorPersistenceTests(TestCase):
         )
         self.assertEqual(simulacion.tipo, "brechas_panorama_reforma")
         self.assertIn("no-vigencia-plena", simulacion.normativa_version)
-        self.assertEqual(simulacion.resultados_json["estado_normativo"], "Modelo consultivo no activado como regla juridica vigente plena")
+        self.assertEqual(simulacion.resultados_json["estado_normativo"], "Modelo consultivo no activado como regla jurídica vigente plena")
 
     def test_default_comparative_scenario_stores_tables_and_detail_page(self):
         user = get_user_model().objects.create_user(username="consultor3", password="clave")
@@ -72,7 +72,7 @@ class SimuladorPersistenceTests(TestCase):
         self.assertEqual(len(simulacion.resultados_json["proyecciones"]), 4)
         self.client.force_login(user)
         response = self.client.get(reverse("simuladores:detail", args=[simulacion.pk]), follow=True)
-        self.assertContains(response, "Proyeccion por densidad de cotizacion")
+        self.assertContains(response, "Proyección por densidad de cotización")
         self.assertContains(response, "Panorama Ley 100")
 
     def test_automatic_scenario_uses_transition_threshold(self):

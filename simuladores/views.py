@@ -20,7 +20,24 @@ class SimulacionListView(LoginRequiredMixin, ListView):
 
 
 def labelize(key: str) -> str:
-    return key.replace("_", " ").capitalize()
+    labels = {
+        "anio": "Año",
+        "anios": "Años",
+        "ibc_ultimos_10_anios": "IBC promedio 10 años",
+        "edad_requisito_rpm": "Edad requisito RPM",
+        "semanas_requeridas_transicion_ley_2381": "Semanas requeridas transición Ley 2381",
+        "cumple_regimen_transicion_ley_2381": "Cumple régimen de transición Ley 2381",
+        "regimen_simulacion_recomendado": "Régimen de simulación recomendado",
+        "fundamento_decision_regimen": "Fundamento de decisión de régimen",
+        "regimen_aplicado": "Régimen aplicado",
+        "estado_normativo": "Estado normativo",
+        "pension_vejez_rpm_ley_100": "Pensión vejez RPM Ley 100",
+        "pension_vejez_rais_ley_100": "Pensión vejez RAIS Ley 100",
+        "pension_total_reforma": "Pensión total Reforma",
+        "brecha_menor_vejez": "Brecha menor de vejez",
+        "tasa_aporte_acumulacion": "Tasa acumulación RAIS/ACCAI",
+    }
+    return labels.get(key, key.replace("_", " ").capitalize())
 
 
 def value_label(value) -> str:

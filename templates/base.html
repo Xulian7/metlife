@@ -1,20 +1,21 @@
 {% load static %}
 <!doctype html>
-<html lang="es">
+<html lang="es-CO">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="Content-Language" content="es-CO">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MetLife Consultoria</title>
+  <title>MetLife Consultoría</title>
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
 </head>
 <body>
   <aside class="sidebar">
-    <div class="brand">Consultoria 360</div>
+    <div class="brand">Consultoría 360</div>
     <nav>
       <a href="{% url 'dashboard' %}">Dashboard</a>
       <a href="{% url 'clientes:list' %}">Clientes</a>
       <a href="{% url 'visitas:list' %}">Visitas</a>
-      <a href="{% url 'consultoria:list' %}">Consultoria</a>
+      <a href="{% url 'consultoria:list' %}">Consultoría</a>
       <a href="{% url 'simuladores:list' %}">Simulaciones</a>
       {% if request.user.is_staff %}<a href="{% url 'consultores:list' %}">Consultores</a>{% endif %}
       <a href="{% url 'admin:index' %}">Admin</a>

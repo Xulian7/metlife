@@ -236,7 +236,7 @@ def calcular_panorama_reforma(inputs: PensionInputs) -> dict:
     return {
         "engine_version": ENGINE_VERSION,
         "ruleset_version": f"{RULESET_VERSION}-reforma-no-vigencia-plena",
-        "estado_normativo": "Modelo consultivo no activado como regla juridica vigente plena",
+        "estado_normativo": "Modelo consultivo no activado como regla jurídica vigente plena",
         "contexto": contexto,
         "minimo_neto": money(minimo_neto),
         "capital_fedesarrollo": money(capital_fedesarrollo),
@@ -320,13 +320,13 @@ def build_projection_rows(inputs: PensionInputs) -> list[dict]:
 def build_alerts(inputs: PensionInputs, contexto: dict) -> list[str]:
     alerts = []
     if contexto["sexo_normalizado"] == "no_informado":
-        alerts.append("Sexo no informado: se usa edad de referencia conservadora de 62 anos. Completar este dato mejora la proyeccion.")
+        alerts.append("Sexo no informado: se usa edad de referencia conservadora de 62 años. Completar este dato mejora la proyección.")
     if contexto["cumple_regimen_transicion_ley_2381"]:
-        alerts.append("Cumple umbral de transicion Ley 2381: se debe conservar simulacion bajo Ley 100 / Ley 797, validando semanas al 30 de junio de 2025.")
+        alerts.append("Cumple umbral de transición Ley 2381: se debe conservar simulación bajo Ley 100 / Ley 797, validando semanas al 30 de junio de 2025.")
     else:
-        alerts.append("No cumple umbral de transicion Ley 2381 con las semanas informadas; la Reforma se muestra como escenario consultivo por estado juridico.")
+        alerts.append("No cumple umbral de transición Ley 2381 con las semanas informadas; la Reforma se muestra como escenario consultivo por estado jurídico.")
     if not contexto["cumple_semanas_rpm_proyectadas"]:
-        alerts.append("Con la densidad de cotizacion indicada no se proyectan 1.300 semanas para RPM; revisar alternativas o continuidad de aportes.")
+        alerts.append("Con la densidad de cotización indicada no se proyectan 1.300 semanas para RPM; revisar alternativas o continuidad de aportes.")
     if not contexto["cumple_garantia_minima_rais_proyectada"]:
         alerts.append("No se proyectan 1.150 semanas para garantia de pension minima RAIS; esta alerta no reemplaza estudio de capital individual.")
     if inputs.ibc_actual < inputs.smmlv:
@@ -349,7 +349,7 @@ OFFICIAL_SOURCES = [
     {
         "nombre": "Superfinanciera Circular 12 de 2024",
         "url": "https://normativa.colpensiones.gov.co/colpens/compilacion/docs/circular_superfinanciera_0012_2024.htm",
-        "nota": "Proyecciones de asesoría por densidad de cotización: 12, 9, 6 o 0 meses al ano.",
+        "nota": "Proyecciones de asesoría por densidad de cotización: 12, 9, 6 o 0 meses al año.",
     },
     {
         "nombre": "Corte Constitucional Auto 841 de 2025",
@@ -362,7 +362,7 @@ OFFICIAL_SOURCES = [
         "nota": "Reitera suspension con excepciones de Ley 2381 de 2024.",
     },
     {
-        "nombre": "Ley 2381 de 2024 - regimen de transicion",
+        "nombre": "Ley 2381 de 2024 - régimen de transición",
         "url": "https://normativa.colpensiones.gov.co/compilacion/docs/ley_2381_2024.htm",
         "nota": "Articulo 75: 750 semanas mujeres y 900 semanas hombres para conservar Ley 100.",
     },

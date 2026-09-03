@@ -4,11 +4,11 @@
   <div>
     <p class="eyebrow">Estudio pensional auditable</p>
     <h1>{{ simulacion.cliente }}</h1>
-    <p>{{ simulacion.tipo }}. Motor {{ simulacion.version_motor }} · {{ simulacion.normativa_version }}</p>
+    <p>{{ simulacion.tipo_label }}. Motor {{ simulacion.version_motor }} · {{ simulacion.normativa_version }}</p>
   </div>
   <div class="actions">
     <a class="button secondary" href="{% url 'simuladores:list' %}">Simulaciones</a>
-    <a class="button" href="{% url 'simuladores:brechas_create' simulacion.cliente_id %}">Nueva simulacion</a>
+    <a class="button" href="{% url 'simuladores:brechas_create' simulacion.cliente_id %}">Nueva simulación</a>
   </div>
 </section>
 
@@ -49,7 +49,7 @@
 
 {% if comparison_rows %}
   <section class="panel">
-    <h2>Comparacion pensional</h2>
+    <h2>Comparación pensional</h2>
     <table>
       <tbody>
         {% for row in comparison_rows %}
@@ -62,12 +62,12 @@
 
 {% if projection_rows %}
   <section class="panel">
-    <h2>Proyeccion por densidad de cotizacion</h2>
+    <h2>Proyección por densidad de cotización</h2>
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
-            <th>Meses/ano</th>
+            <th>Meses/año</th>
             <th>Semanas proyectadas</th>
             <th>Edad pension RPM</th>
             <th>Cumple RPM</th>
@@ -102,7 +102,7 @@
         {% for row in ley100_rows %}
           <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
         {% empty %}
-          <tr><td>No aplica para esta simulacion.</td></tr>
+          <tr><td>No aplica para esta simulación.</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -114,7 +114,7 @@
         {% for row in reforma_rows %}
           <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
         {% empty %}
-          <tr><td>No aplica para esta simulacion.</td></tr>
+          <tr><td>No aplica para esta simulación.</td></tr>
         {% endfor %}
       </tbody>
     </table>

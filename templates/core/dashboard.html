@@ -2,7 +2,7 @@
 {% block content %}
 <section class="hero">
   <div>
-    <p class="eyebrow">Consultoria y seguimiento</p>
+    <p class="eyebrow">Consultoría y seguimiento</p>
     <h1>Panel 360</h1>
   </div>
   <a class="button" href="{% url 'clientes:create' %}">Nuevo cliente</a>
@@ -11,7 +11,7 @@
   <article><span>Clientes</span><strong>{{ clientes_total }}</strong></article>
   <article><span>Clientes activos</span><strong>{{ clientes_activos }}</strong></article>
   <article><span>Nuevos</span><strong>{{ clientes_nuevos }}</strong></article>
-  <article><span>Citas proximas</span><strong>{{ citas_proximas }}</strong></article>
+  <article><span>Citas próximas</span><strong>{{ citas_proximas }}</strong></article>
   <article><span>Visitas mes</span><strong>{{ visitas_mes }}</strong></article>
   <article><span>Seguimientos hoy</span><strong>{{ seguimientos_hoy }}</strong></article>
   <article><span>Vencidos</span><strong>{{ seguimientos_vencidos }}</strong></article>
@@ -22,10 +22,10 @@
     <h2>Estados de clientes</h2>
     {% for row in pipeline %}
       <div class="pipeline-row"><span>{{ row.estado_relacion__nombre|default:"Sin estado" }}</span><strong>{{ row.total }}</strong></div>
-    {% empty %}<p>Sin clientes todavia.</p>{% endfor %}
+    {% empty %}<p>Sin clientes todavía.</p>{% endfor %}
   </div>
   <div class="panel">
-    <h2>Proximos seguimientos</h2>
+    <h2>Próximos seguimientos</h2>
     {% for item in proximos_seguimientos %}
       <p><strong>{{ item.fecha }}</strong><br>{{ item.cliente }} - {{ item.tipo }}</p>
     {% empty %}<p>No hay seguimientos pendientes.</p>{% endfor %}

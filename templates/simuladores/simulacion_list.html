@@ -1,29 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="hero"><div><p class="eyebrow">Motor auditable</p><h1>Simulaciones</h1><p>Estudios guardados con inputs, resultados, version de motor y fuentes.</p></div></section>
-<section class="panel">
+<section class="hero">
+  <div>
+    <p class="eyebrow">Motor auditable</p>
+    <h1>Simulaciones</h1>
+    <p>Estudios guardados con datos de entrada, resultados, versión de motor y fuentes.</p>
+  </div>
+</section>
+<section class="panel data-panel">
+  <div class="table-toolbar">
+    <div>
+      <h2>Registro de estudios</h2>
+      <p>{{ simulaciones|length }} simulaciones registradas</p>
+    </div>
+  </div>
   <div class="table-scroll">
-    <table>
+    <table class="data-table simulation-table">
       <thead>
         <tr>
           <th>Cliente</th>
-          <th>Tipo</th>
+          <th>Estudio</th>
           <th>Fecha</th>
           <th>Motor</th>
-          <th></th>
+          <th class="actions-cell">Acción</th>
         </tr>
       </thead>
       <tbody>
         {% for simulacion in simulaciones %}
           <tr>
-            <td><strong>{{ simulacion.cliente }}</strong><br><small>{{ simulacion.cliente.regimen_pensional }}</small></td>
-            <td>{{ simulacion.tipo }}<br><small>{{ simulacion.normativa_version }}</small></td>
-            <td>{{ simulacion.fecha|date:"Y-m-d H:i" }}</td>
-            <td>{{ simulacion.version_motor }}</td>
-            <td><a class="button secondary" href="{{ simulacion.get_absolute_url }}">Ver detalle</a></td>
+            <td class="primary-cell">
+              <strong>{{ simulacion.cliente }}</strong>
+              <small>{{ simulacion.cliente.regimen_pensional }}</small>
+            </td>
+            <td>
+              <span class="status-pill">{{ simulacion.tipo_label }}</span>
+              <small>{{ simulacion.normativa_version }}</small>
+            </td>
+            <td class="date-cell">{{ simulacion.fecha|date:"Y-m-d H:i" }}</td>
+            <td class="number-cell">{{ simulacion.version_motor }}</td>
+            <td class="actions-cell"><a class="button tertiary" href="{{ simulacion.get_absolute_url }}">Ver detalle</a></td>
           </tr>
         {% empty %}
-          <tr><td colspan="5">Sin simulaciones.</td></tr>
+          <tr><td colspan="5" class="empty-cell">Sin simulaciones registradas.</td></tr>
         {% endfor %}
       </tbody>
     </table>

@@ -4,13 +4,13 @@
   <div>
     <p class="eyebrow">Perfil progresivo</p>
     <h1>Cliente</h1>
-    <p>Capture lo esencial hoy y complete el diagnostico durante las reuniones.</p>
+    <p>Capture lo esencial hoy y complete el diagnóstico durante las reuniones.</p>
   </div>
 </section>
 <form method="post" enctype="multipart/form-data" class="wizard-form" data-client-form>
   {% csrf_token %}
   <section class="form-section">
-    <h2>Identificacion</h2>
+    <h2>Identificación</h2>
     <div class="form-columns">
       {% for field in form %}
         {% if field.name == "tipo_persona" or field.name == "tipo_documento" or field.name == "numero_documento" or field.name == "nombres" or field.name == "apellidos" or field.name == "fecha_nacimiento" or field.name == "sexo" or field.name == "estado_civil" or field.name == "estado_relacion" %}
@@ -28,7 +28,7 @@
           <label class="control">{{ field.label }}{{ field }}{{ field.errors }}</label>
         {% endif %}
       {% endfor %}
-      <div class="metric-live"><span>Regimen detectado</span><strong data-regimen-output>Seleccione fondo</strong></div>
+      <div class="metric-live"><span>Régimen detectado</span><strong data-regimen-output>Seleccione fondo</strong></div>
     </div>
   </section>
   <section class="form-section">
@@ -42,7 +42,7 @@
     </div>
   </section>
   <section class="form-section">
-    <h2>Economia familiar</h2>
+    <h2>Economía familiar</h2>
     <div class="form-columns">
       {% for field in form %}
         {% if field.name == "ingresos" or field.name == "ingresos_adicionales" or field.name == "gastos_estimados" or field.name == "activos" or field.name == "pasivos" or field.name == "capacidad_ahorro" or field.name == "personas_a_cargo" or field.name == "tiene_conyuge" or field.name == "conyuge_nombre" or field.name == "conyuge_fecha_nacimiento" or field.name == "numero_hijos" or field.name == "hijos_edades" %}
@@ -52,7 +52,7 @@
     </div>
   </section>
   <section class="form-section">
-    <h2>Proximo paso</h2>
+    <h2>Próximo paso</h2>
     <div class="form-columns">
       {% for field in form %}
         {% if field.name == "estado" or field.name == "proxima_accion" or field.name == "proxima_accion_fecha" %}
@@ -87,7 +87,7 @@
   }
   function syncAge() {
     const age = ageFrom(birthInput?.value);
-    ageOutput.textContent = age === null ? 'Sin fecha' : `${age} anos`;
+    ageOutput.textContent = age === null ? 'Sin fecha' : `${age} años`;
   }
   function syncRegime() {
     const text = fundSelect?.selectedOptions?.[0]?.text || '';

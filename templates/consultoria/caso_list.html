@@ -1,5 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="hero"><h1>Consultoria guiada</h1><a class="button" href="{% url 'consultoria:create' %}">Nuevo diagnostico</a></section>
-<section class="panel">{% for caso in casos %}<p><strong>{{ caso.cliente }}</strong> - {{ caso.estado }} - {{ caso.actualizado_en }}</p>{% empty %}<p>Sin diagnosticos.</p>{% endfor %}</section>
+<section class="hero"><h1>Consultoría guiada</h1><a class="button" href="{% url 'consultoria:create' %}">Nuevo diagnóstico</a></section>
+<section class="panel">{% for caso in casos %}<p><strong>{{ caso.cliente }}</strong> - {{ caso.estado }} - {{ caso.actualizado_en }}</p>{% empty %}<p>Sin diagnósticos.</p>{% endfor %}</section>
 {% endblock %}

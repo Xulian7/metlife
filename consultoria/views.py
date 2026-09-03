@@ -23,7 +23,7 @@ class ConsultoriaCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.consultor = self.request.user
         response = super().form_valid(form)
-        record_timeline_event(cliente=self.object.cliente, actor=self.request.user, tipo="consultoria", titulo="Diagnostico de consultoria iniciado", descripcion=self.object.diagnostico)
+        record_timeline_event(cliente=self.object.cliente, actor=self.request.user, tipo="consultoria", titulo="Diagnóstico de consultoría iniciado", descripcion=self.object.diagnostico)
         return response
 
 
