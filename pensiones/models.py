@@ -1,6 +1,26 @@
 from django.db import models
 
 
+class FondoPensiones(models.Model):
+    class Regimen(models.TextChoices):
+        RPM = "rpm", "Prima Media - Colpensiones"
+        RAIS = "rais", "Ahorro Individual - AFP privada"
+        ACCAI = "accai", "ACCAI Ley 2381"
+
+    nombre = models.CharField(max_length=120, unique=True)
+    regimen = models.CharField(max_length=20, choices=Regimen.choices)
+    entidad = models.CharField(max_length=160, blank=True)
+    activo = models.BooleanField(default=True)
+    observaciones = models.TextField(blank=True)
+    fuente = models.URLField(blank=True)
+
+    class Meta:
+        ordering = ["regimen", "nombre"]
+
+    def __str__(self) -> str:
+        return f"{self.nombre} ({self.get_regimen_display()})"
+
+
 class NormativaPensional(models.Model):
     class Estado(models.TextChoices):
         VIGENTE = "vigente", "Vigente"

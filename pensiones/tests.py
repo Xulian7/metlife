@@ -2,7 +2,8 @@ from decimal import Decimal
 
 from django.test import TestCase
 
-from .services import PensionInputs, calcular_panorama_ley_100
+from .models import FondoPensiones
+from .services import PensionInputs, calcular_panorama_ley_100, calcular_panorama_reforma, ensure_default_pension_funds
 
 
 class PensionEngineTests(TestCase):
@@ -22,5 +23,25 @@ class PensionEngineTests(TestCase):
         self.assertEqual(result["pension_colpensiones"], Decimal("1408000.00"))
         self.assertEqual(result["brecha_fallecimiento"], Decimal("2785600.00"))
         self.assertEqual(result["capital_fallecimiento"], Decimal("557120000.00"))
+
+    def test_default_pension_funds_include_regimes(self):
+        ensure_default_pension_funds()
+        self.assertEqual(FondoPensiones.objects.get(nombre="Colpensiones").regimen, FondoPensiones.Regimen.RPM)
+        self.assertEqual(FondoPensiones.objects.get(nombre="Porvenir").regimen, FondoPensiones.Regimen.RAIS)
+
+    def test_reforma_calculates_pillar_split(self):
+        result = calcular_panorama_reforma(
+            PensionInputs(
+                ingreso_mensual=Decimal("4000000"),
+                ibc_actual=Decimal("5000000"),
+                ibc_ultimos_10_anios=Decimal("4000000"),
+                anios_cotizados=Decimal("10"),
+                anios_por_cotizar=Decimal("20"),
+                smmlv=Decimal("1423500"),
+            )
+        )
+        self.assertEqual(result["ibc_colpensiones"], Decimal("3274050.00"))
+        self.assertEqual(result["ibc_accai"], Decimal("1725950.00"))
+        self.assertIn("estado_normativo", result)
 
 # Create your tests here.

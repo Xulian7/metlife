@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'accounts',
     'auditoria',
     'core',
-    'clientes',
+    'clientes.apps.ClientesConfig',
     'productos',
     'leads.apps.LeadsConfig',
     'visitas',

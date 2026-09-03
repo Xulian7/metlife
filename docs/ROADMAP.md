@@ -2,7 +2,7 @@
 
 ## Fase 1
 
-Fundaciones Django, usuarios, clientes, leads, pipeline, dashboard, visitas basicas, timeline y configuracion Railway.
+Fundaciones Django, usuarios, clientes, estados de relacion, dashboard, visitas basicas, timeline y configuracion Railway.
 
 ## Fase 2
 

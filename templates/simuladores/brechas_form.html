@@ -1,7 +1,44 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="panel">
-  <h1>Simular brechas para {{ cliente }}</h1>
-  <form method="post" class="form-grid">{% csrf_token %}{{ form.as_p }}<button>Calcular y guardar</button></form>
+<section class="hero">
+  <div>
+    <p class="eyebrow">Simulador basado en BRECHAS .xlsx</p>
+    <h1>{{ cliente }}</h1>
+    <p>{{ cliente.regimen_pensional }}. Las simulaciones se guardan con version de motor y ruleset.</p>
+  </div>
 </section>
+<section class="panel simulator-panel">
+  <form method="post" class="form-grid" data-simulator-form>
+    {% csrf_token %}
+    <div class="tabs" role="tablist">
+      {% for radio in form.escenario %}
+        <label class="tab-option">{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>
+      {% endfor %}
+    </div>
+    <div class="scenario-note" data-scenario="ley_100">
+      Replica la mecanica principal de la hoja PANORAMA LEY 100: invalidez, sobrevivencia, vejez Colpensiones, vejez AFP y capital necesario.
+    </div>
+    <div class="scenario-note" data-scenario="reforma">
+      Replica la mecanica consultiva de PANORAMA REFORMA con pilar Colpensiones hasta 2,3 SMMLV y componente ACCAI. No se presenta como regla juridica vigente plena.
+    </div>
+    {% for field in form %}
+      {% if field.name != "escenario" %}
+        <p class="field-row field-{{ field.name }}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}{{ field.errors }}</p>
+      {% endif %}
+    {% endfor %}
+    <button>Calcular y guardar simulacion</button>
+  </form>
+</section>
+<script>
+  const scenarioRadios = document.querySelectorAll('input[name="escenario"]');
+  const notes = document.querySelectorAll('[data-scenario]');
+  const capitalRow = document.querySelector('.field-capital_actual_rais');
+  function syncScenario() {
+    const selected = document.querySelector('input[name="escenario"]:checked')?.value || 'ley_100';
+    notes.forEach(note => note.hidden = note.dataset.scenario !== selected);
+    if (capitalRow) capitalRow.hidden = selected !== 'reforma';
+  }
+  scenarioRadios.forEach(radio => radio.addEventListener('change', syncScenario));
+  syncScenario();
+</script>
 {% endblock %}

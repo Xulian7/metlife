@@ -9,4 +9,5 @@ urlpatterns = [
     path("nuevo/", views.ClienteCreateView.as_view(), name="create"),
     path("<int:pk>/", views.ClienteDetailView.as_view(), name="detail"),
     path("<int:pk>/editar/", views.ClienteUpdateView.as_view(), name="update"),
+    path("seguimientos/nuevo/", views.SeguimientoClienteCreateView.as_view(), name="seguimiento_create"),
 ]

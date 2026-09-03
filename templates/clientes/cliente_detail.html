@@ -1,21 +1,45 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="hero">
-  <div><h1>360 del cliente</h1><p>{{ cliente.nombre_completo }} {% if cliente.edad %}- {{ cliente.edad }} anos{% endif %}</p></div>
-  <div class="actions"><a class="button" href="{% url 'leads:create' %}">Nuevo lead</a><a class="button secondary" href="{% url 'visitas:create' %}">Nueva visita</a><a class="button secondary" href="{% url 'simuladores:brechas_create' cliente.id %}">Simular brechas</a></div>
+  <div>
+    <p class="eyebrow">360 del cliente</p>
+    <h1>{{ cliente.nombre_completo }}</h1>
+    <p>{% if cliente.edad %}{{ cliente.edad }} anos{% else %}Edad pendiente{% endif %} - {{ cliente.regimen_pensional }}</p>
+  </div>
+  <div class="actions"><a class="button" href="{% url 'visitas:create' %}">Nueva visita</a><a class="button secondary" href="{% url 'clientes:seguimiento_create' %}">Seguimiento</a><a class="button secondary" href="{% url 'simuladores:brechas_create' cliente.id %}">Simular</a></div>
 </section>
 <section class="grid-two">
   <div class="panel">
     <h2>Perfil</h2>
-    <p>{{ cliente.ocupacion }} {{ cliente.empresa }}</p>
-    <p>{{ cliente.email }} {{ cliente.whatsapp }}</p>
-    <p>Ingresos: {{ cliente.ingresos|default:"Sin dato" }}</p>
+    <dl class="facts">
+      <dt>Estado</dt><dd>{{ cliente.estado_relacion|default:"Sin estado" }}</dd>
+      <dt>Fondo pensional</dt><dd>{{ cliente.fondo_pensiones|default:"Sin fondo" }}</dd>
+      <dt>Actividad</dt><dd>{{ cliente.ocupacion }} {{ cliente.empresa }}</dd>
+      <dt>Contacto</dt><dd>{{ cliente.email }} {{ cliente.whatsapp }}</dd>
+      <dt>Ingresos</dt><dd>{{ cliente.ingresos|default:"Sin dato" }}</dd>
+      <dt>Conyuge</dt><dd>{% if cliente.tiene_conyuge %}{{ cliente.conyuge_nombre|default:"Registrado" }} {% if cliente.conyuge_edad %}({{ cliente.conyuge_edad }} anos){% endif %}{% else %}No registrado{% endif %}</dd>
+      <dt>Hijos</dt><dd>{{ cliente.numero_hijos }} {% if cliente.hijos %}- edades: {% for hijo in cliente.hijos %}{{ hijo.edad }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}</dd>
+    </dl>
   </div>
   <div class="panel">
     <h2>Timeline</h2>
     {% for event in cliente.timeline.all %}
       <div class="timeline-item"><span>{{ event.occurred_at }}</span><strong>{{ event.titulo }}</strong><p>{{ event.descripcion }}</p></div>
     {% empty %}<p>Sin eventos todavia.</p>{% endfor %}
+  </div>
+</section>
+<section class="grid-two">
+  <div class="panel">
+    <h2>Seguimientos</h2>
+    {% for item in cliente.seguimientos.all %}
+      <p><strong>{{ item.fecha }}</strong><br>{{ item.tipo }} - {{ item.estado }}<br>{{ item.objetivo }}</p>
+    {% empty %}<p>Sin seguimientos.</p>{% endfor %}
+  </div>
+  <div class="panel">
+    <h2>Simulaciones</h2>
+    {% for item in cliente.simulaciones.all %}
+      <p><strong>{{ item.tipo }}</strong><br>Motor {{ item.version_motor }} - {{ item.fecha }}</p>
+    {% empty %}<p>Sin simulaciones.</p>{% endfor %}
   </div>
 </section>
 {% endblock %}

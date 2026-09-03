@@ -1,12 +1,12 @@
 # Reglas de negocio iniciales
 
-## CRM
+## Clientes y seguimiento
 
-- Un prospecto se modela como `Cliente` con estado `prospecto`.
-- Un `Lead` debe pertenecer a un cliente/prospecto y a un consultor.
-- Las etapas del pipeline son configurables en `PipelineStage`.
-- Los cambios de etapa se guardan en `LeadStageHistory`; no se sobrescribe el historial.
-- Seguimientos, visitas, simulaciones y diagnosticos alimentan el timeline del cliente.
+- Un prospecto o cliente se modela como `Cliente`.
+- Los estados de relacion son configurables en `ClienteEstado`.
+- Los cambios de estado se guardan en `ClienteEstadoHistory`; no se sobrescribe el historial.
+- Seguimientos, reuniones, visitas, simulaciones y diagnosticos alimentan el timeline del cliente.
+- La seleccion de fondo pensional permite detectar regimen: Colpensiones/RPM, AFP privada/RAIS o ACCAI especial.
 
 ## Simulaciones
 

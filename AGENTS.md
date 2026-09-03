@@ -2,7 +2,7 @@
 
 Objetivo: construir una herramienta interna de consultoria 360 para clientes, leads, visitas, diagnosticos, seguros y simulaciones pensionales/financieras auditables.
 
-Arquitectura: Django modular con apps `accounts`, `clientes`, `leads`, `visitas`, `consultoria`, `pensiones`, `seguros`, `simuladores`, `productos`, `auditoria` y `core`.
+Arquitectura: Django modular con apps `accounts`, `clientes`, `visitas`, `consultoria`, `pensiones`, `seguros`, `simuladores`, `productos`, `auditoria` y `core`. El modulo `leads` puede existir como legado, pero no es flujo principal visible.
 
 Reglas de dominio: ubicar calculos y decisiones en `pensiones/services.py`, `seguros/services.py`, `simuladores/services.py` o submodulos equivalentes. No poner reglas financieras o pensionales en views/templates.
 

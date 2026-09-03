@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Perfil progresivo</p>
+    <h1>Cliente</h1>
+    <p>Capture lo esencial hoy y complete el diagnostico durante las reuniones.</p>
+  </div>
+</section>
+<form method="post" enctype="multipart/form-data" class="wizard-form" data-client-form>
+  {% csrf_token %}
+  <section class="form-section">
+    <h2>Identificacion</h2>
+    <div class="form-columns">
+      {% for field in form %}
+        {% if field.name == "tipo_persona" or field.name == "tipo_documento" or field.name == "numero_documento" or field.name == "nombres" or field.name == "apellidos" or field.name == "fecha_nacimiento" or field.name == "sexo" or field.name == "estado_civil" or field.name == "estado_relacion" %}
+          <label class="control">{{ field.label }}{{ field }}{{ field.errors }}</label>
+        {% endif %}
+      {% endfor %}
+      <div class="metric-live"><span>Edad calculada</span><strong data-age-output>Sin fecha</strong></div>
+    </div>
+  </section>
+  <section class="form-section">
+    <h2>Pensiones y actividad</h2>
+    <div class="form-columns">
+      {% for field in form %}
+        {% if field.name == "fondo_pensiones" or field.name == "ocupacion" or field.name == "empresa" or field.name == "cargo" or field.name == "origen" or field.name == "segmento" or field.name == "etiquetas" %}
+          <label class="control">{{ field.label }}{{ field }}{{ field.errors }}</label>
+        {% endif %}
+      {% endfor %}
+      <div class="metric-live"><span>Regimen detectado</span><strong data-regimen-output>Seleccione fondo</strong></div>
+    </div>
+  </section>
+  <section class="form-section">
+    <h2>Contacto</h2>
+    <div class="form-columns">
+      {% for field in form %}
+        {% if field.name == "ciudad" or field.name == "direccion" or field.name == "telefono" or field.name == "whatsapp" or field.name == "email" %}
+          <label class="control">{{ field.label }}{{ field }}{{ field.errors }}</label>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  <section class="form-section">
+    <h2>Economia familiar</h2>
+    <div class="form-columns">
+      {% for field in form %}
+        {% if field.name == "ingresos" or field.name == "ingresos_adicionales" or field.name == "gastos_estimados" or field.name == "activos" or field.name == "pasivos" or field.name == "capacidad_ahorro" or field.name == "personas_a_cargo" or field.name == "tiene_conyuge" or field.name == "conyuge_nombre" or field.name == "conyuge_fecha_nacimiento" or field.name == "numero_hijos" or field.name == "hijos_edades" %}
+          <label class="control dependent-control control-{{ field.name }}">{{ field.label }}{{ field }}{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}{{ field.errors }}</label>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  <section class="form-section">
+    <h2>Proximo paso</h2>
+    <div class="form-columns">
+      {% for field in form %}
+        {% if field.name == "estado" or field.name == "proxima_accion" or field.name == "proxima_accion_fecha" %}
+          <label class="control">{{ field.label }}{{ field }}{{ field.errors }}</label>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+  <div class="sticky-actions">
+    <button type="submit">Guardar cliente</button>
+    <a class="button secondary" href="{% url 'clientes:list' %}">Volver</a>
+  </div>
+</form>
+<script>
+  const birthInput = document.querySelector('#id_fecha_nacimiento');
+  const ageOutput = document.querySelector('[data-age-output]');
+  const fundSelect = document.querySelector('#id_fondo_pensiones');
+  const regimeOutput = document.querySelector('[data-regimen-output]');
+  const dependentsInput = document.querySelector('#id_personas_a_cargo');
+  const spouseCheck = document.querySelector('#id_tiene_conyuge');
+  const childrenInput = document.querySelector('#id_numero_hijos');
+  const spouseRows = document.querySelectorAll('.control-conyuge_nombre, .control-conyuge_fecha_nacimiento');
+  const childrenRows = document.querySelectorAll('.control-numero_hijos, .control-hijos_edades');
+  function ageFrom(value) {
+    if (!value) return null;
+    const birth = new Date(value + 'T00:00:00');
+    const now = new Date();
+    let age = now.getFullYear() - birth.getFullYear();
+    const beforeBirthday = now.getMonth() < birth.getMonth() || (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate());
+    if (beforeBirthday) age -= 1;
+    return age >= 0 ? age : null;
+  }
+  function syncAge() {
+    const age = ageFrom(birthInput?.value);
+    ageOutput.textContent = age === null ? 'Sin fecha' : `${age} anos`;
+  }
+  function syncRegime() {
+    const text = fundSelect?.selectedOptions?.[0]?.text || '';
+    if (text.includes('Colpensiones')) regimeOutput.textContent = 'Prima Media - Colpensiones';
+    else if (text.includes('ACCAI')) regimeOutput.textContent = 'ACCAI / reforma';
+    else if (text) regimeOutput.textContent = 'Ahorro Individual - AFP privada';
+    else regimeOutput.textContent = 'Seleccione fondo';
+  }
+  function syncDependents() {
+    const hasDependents = Number(dependentsInput?.value || 0) > 0;
+    spouseRows.forEach(row => row.hidden = !hasDependents || !spouseCheck?.checked);
+    childrenRows.forEach(row => row.hidden = !hasDependents);
+  }
+  birthInput?.addEventListener('input', syncAge);
+  fundSelect?.addEventListener('change', syncRegime);
+  dependentsInput?.addEventListener('input', syncDependents);
+  spouseCheck?.addEventListener('change', syncDependents);
+  childrenInput?.addEventListener('input', syncDependents);
+  syncAge(); syncRegime(); syncDependents();
+</script>
+{% endblock %}

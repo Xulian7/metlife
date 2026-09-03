@@ -20,8 +20,10 @@ class Cliente(models.Model):
     nombres = models.CharField(max_length=150)
     apellidos = models.CharField(max_length=150, blank=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
+    fondo_pensiones = models.ForeignKey("pensiones.FondoPensiones", on_delete=models.SET_NULL, null=True, blank=True, related_name="clientes")
     sexo = models.CharField(max_length=20, blank=True)
     estado_civil = models.CharField(max_length=40, blank=True)
+    estado_relacion = models.ForeignKey("ClienteEstado", on_delete=models.SET_NULL, null=True, blank=True, related_name="clientes")
     ciudad = models.CharField(max_length=120, blank=True)
     direccion = models.CharField(max_length=240, blank=True)
     telefono = models.CharField(max_length=40, blank=True)
@@ -41,6 +43,11 @@ class Cliente(models.Model):
     activos = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True)
     pasivos = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True)
     personas_a_cargo = models.PositiveSmallIntegerField(default=0)
+    tiene_conyuge = models.BooleanField(default=False)
+    conyuge_nombre = models.CharField(max_length=180, blank=True)
+    conyuge_fecha_nacimiento = models.DateField(null=True, blank=True)
+    numero_hijos = models.PositiveSmallIntegerField(default=0)
+    hijos = models.JSONField(default=list, blank=True)
     capacidad_ahorro = models.DecimalField(max_digits=16, decimal_places=2, null=True, blank=True)
     ultima_interaccion = models.DateTimeField(null=True, blank=True)
     proxima_accion = models.CharField(max_length=180, blank=True)
@@ -72,6 +79,19 @@ class Cliente(models.Model):
         today = timezone.localdate()
         return today.year - self.fecha_nacimiento.year - ((today.month, today.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
 
+    @property
+    def conyuge_edad(self) -> int | None:
+        if not self.conyuge_fecha_nacimiento:
+            return None
+        today = timezone.localdate()
+        return today.year - self.conyuge_fecha_nacimiento.year - ((today.month, today.day) < (self.conyuge_fecha_nacimiento.month, self.conyuge_fecha_nacimiento.day))
+
+    @property
+    def regimen_pensional(self) -> str:
+        if not self.fondo_pensiones:
+            return "Sin fondo seleccionado"
+        return self.fondo_pensiones.get_regimen_display()
+
     def get_absolute_url(self):
         return reverse("clientes:detail", args=[self.pk])
 
@@ -85,6 +105,55 @@ class Consentimiento(models.Model):
     evidencia = models.FileField(upload_to="consentimientos/", blank=True)
     creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     creado_en = models.DateTimeField(auto_now_add=True)
+
+
+class ClienteEstado(models.Model):
+    nombre = models.CharField(max_length=90, unique=True)
+    orden = models.PositiveSmallIntegerField(default=0)
+    activo = models.BooleanField(default=True)
+    color = models.CharField(max_length=20, default="azul")
+
+    class Meta:
+        ordering = ["orden", "nombre"]
+
+    def __str__(self) -> str:
+        return self.nombre
+
+
+class ClienteEstadoHistory(models.Model):
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name="historial_estados")
+    from_estado = models.ForeignKey(ClienteEstado, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    to_estado = models.ForeignKey(ClienteEstado, on_delete=models.PROTECT, related_name="+")
+    changed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    note = models.TextField(blank=True)
+    changed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-changed_at"]
+
+
+class SeguimientoCliente(models.Model):
+    class Estado(models.TextChoices):
+        PENDIENTE = "pendiente", "Pendiente"
+        REALIZADO = "realizado", "Realizado"
+        REPROGRAMADO = "reprogramado", "Reprogramado"
+        CANCELADO = "cancelado", "Cancelado"
+
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name="seguimientos")
+    consultor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    fecha = models.DateTimeField()
+    tipo = models.CharField(max_length=60, default="reunion")
+    objetivo = models.CharField(max_length=180, blank=True)
+    estado = models.CharField(max_length=20, choices=Estado.choices, default=Estado.PENDIENTE)
+    notas = models.TextField(blank=True)
+    resultado = models.TextField(blank=True)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["fecha"]
+
+    def __str__(self) -> str:
+        return f"{self.cliente} - {self.fecha:%Y-%m-%d %H:%M}"
 
 
 class TimelineEvent(models.Model):

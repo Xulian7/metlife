@@ -18,7 +18,13 @@ class SimulacionListView(LoginRequiredMixin, ListView):
 
 class BrechasCreateView(LoginRequiredMixin, View):
     def get(self, request, cliente_id):
-        return render(request, "simuladores/brechas_form.html", {"form": BrechasBasicoForm(), "cliente": get_object_or_404(Cliente, pk=cliente_id)})
+        cliente = get_object_or_404(Cliente, pk=cliente_id)
+        initial = {
+            "ingreso_mensual": cliente.ingresos or 4000000,
+            "ibc_actual": cliente.ingresos or 2000000,
+            "ibc_ultimos_10_anios": cliente.ingresos or 2000000,
+        }
+        return render(request, "simuladores/brechas_form.html", {"form": BrechasBasicoForm(initial=initial), "cliente": cliente})
 
     def post(self, request, cliente_id):
         cliente = get_object_or_404(Cliente, pk=cliente_id)
