@@ -1,5 +1,32 @@
 {% extends "base.html" %}
 {% block content %}
-<section class="hero"><div><p class="eyebrow">Motor auditable</p><h1>Simulaciones</h1></div></section>
-<section class="panel">{% for simulacion in simulaciones %}<p><strong>{{ simulacion.cliente }}</strong> - {{ simulacion.tipo }} - motor {{ simulacion.version_motor }}<br><small>{{ simulacion.normativa_version }}</small></p>{% empty %}<p>Sin simulaciones.</p>{% endfor %}</section>
+<section class="hero"><div><p class="eyebrow">Motor auditable</p><h1>Simulaciones</h1><p>Estudios guardados con inputs, resultados, version de motor y fuentes.</p></div></section>
+<section class="panel">
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Tipo</th>
+          <th>Fecha</th>
+          <th>Motor</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for simulacion in simulaciones %}
+          <tr>
+            <td><strong>{{ simulacion.cliente }}</strong><br><small>{{ simulacion.cliente.regimen_pensional }}</small></td>
+            <td>{{ simulacion.tipo }}<br><small>{{ simulacion.normativa_version }}</small></td>
+            <td>{{ simulacion.fecha|date:"Y-m-d H:i" }}</td>
+            <td>{{ simulacion.version_motor }}</td>
+            <td><a class="button secondary" href="{{ simulacion.get_absolute_url }}">Ver detalle</a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5">Sin simulaciones.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
 {% endblock %}

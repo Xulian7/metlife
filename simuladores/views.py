@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
-from django.views.generic import ListView
+from django.views.generic import DetailView, ListView
 
 from clientes.models import Cliente
 
@@ -15,11 +15,69 @@ class SimulacionListView(LoginRequiredMixin, ListView):
     template_name = "simuladores/simulacion_list.html"
     context_object_name = "simulaciones"
 
+    def get_queryset(self):
+        return super().get_queryset().select_related("cliente", "consultor")
+
+
+def labelize(key: str) -> str:
+    return key.replace("_", " ").capitalize()
+
+
+def value_label(value) -> str:
+    if value is True:
+        return "Si"
+    if value is False:
+        return "No"
+    if value in (None, ""):
+        return "Sin dato"
+    return str(value)
+
+
+def table_rows(data: dict | None, *, exclude: set[str] | None = None) -> list[dict]:
+    exclude = exclude or set()
+    rows = []
+    for key, value in (data or {}).items():
+        if key in exclude or isinstance(value, (dict, list)):
+            continue
+        rows.append({"label": labelize(key), "value": value_label(value)})
+    return rows
+
+
+class SimulacionDetailView(LoginRequiredMixin, DetailView):
+    model = Simulacion
+    template_name = "simuladores/simulacion_detail.html"
+    context_object_name = "simulacion"
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("cliente", "consultor")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        resultados = self.object.resultados_json or {}
+        exclude = {"engine_version", "ruleset_version", "contexto"}
+        context.update(
+            {
+                "resumen_rows": table_rows(resultados.get("resumen") or resultados.get("contexto"), exclude=exclude),
+                "contexto_rows": table_rows(resultados.get("contexto"), exclude=exclude),
+                "comparison_rows": table_rows(resultados.get("comparacion"), exclude=exclude),
+                "ley100_rows": table_rows(resultados.get("ley_100") or resultados, exclude=exclude),
+                "reforma_rows": table_rows(resultados.get("reforma"), exclude=exclude),
+                "projection_rows": resultados.get("proyecciones", []),
+                "alerts": resultados.get("alertas", []),
+                "sources": resultados.get("fuentes", []),
+                "inputs_rows": table_rows(self.object.inputs_json),
+            }
+        )
+        return context
+
 
 class BrechasCreateView(LoginRequiredMixin, View):
     def get(self, request, cliente_id):
         cliente = get_object_or_404(Cliente, pk=cliente_id)
         initial = {
+            "fecha_nacimiento": cliente.fecha_nacimiento,
+            "sexo": cliente.sexo,
+            "edad_actual": cliente.edad,
             "ingreso_mensual": cliente.ingresos or 4000000,
             "ibc_actual": cliente.ingresos or 2000000,
             "ibc_ultimos_10_anios": cliente.ingresos or 2000000,
@@ -30,8 +88,8 @@ class BrechasCreateView(LoginRequiredMixin, View):
         cliente = get_object_or_404(Cliente, pk=cliente_id)
         form = BrechasBasicoForm(request.POST)
         if form.is_valid():
-            run_excel_brechas_basico(cliente=cliente, consultor=request.user, inputs=form.cleaned_data, observaciones="Motor parcial basado en BRECHAS .xlsx")
-            return redirect(cliente)
+            simulacion = run_excel_brechas_basico(cliente=cliente, consultor=request.user, inputs=form.cleaned_data, observaciones="Motor basado en BRECHAS .xlsx con proyecciones pensionales")
+            return redirect(simulacion)
         return render(request, "simuladores/brechas_form.html", {"form": form, "cliente": cliente})
 
 # Create your views here.

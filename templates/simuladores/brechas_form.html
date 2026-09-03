@@ -4,16 +4,19 @@
   <div>
     <p class="eyebrow">Simulador basado en BRECHAS .xlsx</p>
     <h1>{{ cliente }}</h1>
-    <p>{{ cliente.regimen_pensional }}. Las simulaciones se guardan con version de motor y ruleset.</p>
+    <p>{{ cliente.regimen_pensional }}. Ajusta los supuestos y guarda un estudio auditable con proyecciones.</p>
   </div>
 </section>
 <section class="panel simulator-panel">
-  <form method="post" class="form-grid" data-simulator-form>
+  <form method="post" class="simulator-form" data-simulator-form>
     {% csrf_token %}
     <div class="tabs" role="tablist">
       {% for radio in form.escenario %}
         <label class="tab-option">{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>
       {% endfor %}
+    </div>
+    <div class="scenario-note" data-scenario="comparativo">
+      Calcula Ley 100, Reforma, brechas, semanas, alertas y proyecciones con densidad de 12, 9, 6 y 0 meses cotizados al ano.
     </div>
     <div class="scenario-note" data-scenario="ley_100">
       Replica la mecanica principal de la hoja PANORAMA LEY 100: invalidez, sobrevivencia, vejez Colpensiones, vejez AFP y capital necesario.
@@ -21,24 +24,70 @@
     <div class="scenario-note" data-scenario="reforma">
       Replica la mecanica consultiva de PANORAMA REFORMA con pilar Colpensiones hasta 2,3 SMMLV y componente ACCAI. No se presenta como regla juridica vigente plena.
     </div>
-    {% for field in form %}
-      {% if field.name != "escenario" %}
-        <p class="field-row field-{{ field.name }}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}{{ field.errors }}</p>
-      {% endif %}
-    {% endfor %}
-    <button>Calcular y guardar simulacion</button>
+    <div class="simulator-grid">
+      <div class="form-section compact-section">
+        <h2>Datos base</h2>
+        <p class="field-row"><label for="{{ form.fecha_nacimiento.id_for_label }}">{{ form.fecha_nacimiento.label }}</label>{{ form.fecha_nacimiento }}{{ form.fecha_nacimiento.errors }}</p>
+        <p class="field-row"><label for="{{ form.edad_actual.id_for_label }}">{{ form.edad_actual.label }}</label>{{ form.edad_actual }}{{ form.edad_actual.errors }}</p>
+        <p class="field-row"><label for="{{ form.sexo.id_for_label }}">{{ form.sexo.label }}</label>{{ form.sexo }}{{ form.sexo.errors }}</p>
+        <p class="field-row"><label for="{{ form.ingreso_mensual.id_for_label }}">{{ form.ingreso_mensual.label }}</label>{{ form.ingreso_mensual }}{{ form.ingreso_mensual.errors }}</p>
+      </div>
+      <div class="form-section compact-section">
+        <h2>Historia pensional</h2>
+        <p class="field-row"><label for="{{ form.ibc_actual.id_for_label }}">{{ form.ibc_actual.label }}</label>{{ form.ibc_actual }}{{ form.ibc_actual.errors }}</p>
+        <p class="field-row"><label for="{{ form.ibc_ultimos_10_anios.id_for_label }}">{{ form.ibc_ultimos_10_anios.label }}</label>{{ form.ibc_ultimos_10_anios }}{{ form.ibc_ultimos_10_anios.errors }}</p>
+        <p class="field-row"><label for="{{ form.anios_cotizados.id_for_label }}">{{ form.anios_cotizados.label }}</label>{{ form.anios_cotizados }}{{ form.anios_cotizados.errors }}</p>
+        <p class="field-row"><label for="{{ form.anios_por_cotizar.id_for_label }}">{{ form.anios_por_cotizar.label }}</label>{{ form.anios_por_cotizar }}{{ form.anios_por_cotizar.errors }}</p>
+        <div class="metric-live"><span>Semanas estimadas</span><strong data-weeks-preview>0</strong></div>
+      </div>
+      <div class="form-section compact-section">
+        <h2>Supuestos editables</h2>
+        <p class="field-row"><label for="{{ form.meses_cotizados_anio.id_for_label }}">{{ form.meses_cotizados_anio.label }}</label>{{ form.meses_cotizados_anio }}{% if form.meses_cotizados_anio.help_text %}<small>{{ form.meses_cotizados_anio.help_text }}</small>{% endif %}{{ form.meses_cotizados_anio.errors }}</p>
+        <p class="field-row field-capital_actual_rais"><label for="{{ form.capital_actual_rais.id_for_label }}">{{ form.capital_actual_rais.label }}</label>{{ form.capital_actual_rais }}{{ form.capital_actual_rais.errors }}</p>
+        <p class="field-row"><label for="{{ form.smmlv.id_for_label }}">{{ form.smmlv.label }}</label>{{ form.smmlv }}{{ form.smmlv.errors }}</p>
+        <p class="field-row"><label for="{{ form.factor_capital_brecha.id_for_label }}">{{ form.factor_capital_brecha.label }}</label>{{ form.factor_capital_brecha }}{{ form.factor_capital_brecha.errors }}</p>
+        <p class="field-row"><label for="{{ form.factor_capital_fedesarrollo.id_for_label }}">{{ form.factor_capital_fedesarrollo.label }}</label>{{ form.factor_capital_fedesarrollo }}{{ form.factor_capital_fedesarrollo.errors }}</p>
+        <p class="field-row"><label for="{{ form.tasa_aporte_acumulacion.id_for_label }}">{{ form.tasa_aporte_acumulacion.label }}</label>{{ form.tasa_aporte_acumulacion }}{% if form.tasa_aporte_acumulacion.help_text %}<small>{{ form.tasa_aporte_acumulacion.help_text }}</small>{% endif %}{{ form.tasa_aporte_acumulacion.errors }}</p>
+        <p class="field-row"><label for="{{ form.tasa_renta_mensual.id_for_label }}">{{ form.tasa_renta_mensual.label }}</label>{{ form.tasa_renta_mensual }}{% if form.tasa_renta_mensual.help_text %}<small>{{ form.tasa_renta_mensual.help_text }}</small>{% endif %}{{ form.tasa_renta_mensual.errors }}</p>
+      </div>
+    </div>
+    <div class="sticky-actions"><button>Calcular y guardar simulacion</button><a class="button secondary" href="{{ cliente.get_absolute_url }}">Volver al cliente</a></div>
   </form>
 </section>
 <script>
   const scenarioRadios = document.querySelectorAll('input[name="escenario"]');
   const notes = document.querySelectorAll('[data-scenario]');
   const capitalRow = document.querySelector('.field-capital_actual_rais');
+  const birthDate = document.querySelector('[data-age-source]');
+  const ageTarget = document.querySelector('[data-age-target]');
+  const weeksPreview = document.querySelector('[data-weeks-preview]');
+  const yearsDone = document.querySelector('[name="anios_cotizados"]');
+  const yearsFuture = document.querySelector('[name="anios_por_cotizar"]');
+  const monthsPerYear = document.querySelector('[name="meses_cotizados_anio"]');
   function syncScenario() {
-    const selected = document.querySelector('input[name="escenario"]:checked')?.value || 'ley_100';
+    const selected = document.querySelector('input[name="escenario"]:checked')?.value || 'comparativo';
     notes.forEach(note => note.hidden = note.dataset.scenario !== selected);
-    if (capitalRow) capitalRow.hidden = selected !== 'reforma';
+    if (capitalRow) capitalRow.hidden = selected === 'ley_100';
+  }
+  function updateAge() {
+    if (!birthDate?.value || !ageTarget) return;
+    const born = new Date(`${birthDate.value}T00:00:00`);
+    const today = new Date();
+    let age = today.getFullYear() - born.getFullYear();
+    const hadBirthday = today.getMonth() > born.getMonth() || (today.getMonth() === born.getMonth() && today.getDate() >= born.getDate());
+    if (!hadBirthday) age -= 1;
+    if (age > 0) ageTarget.value = age;
+  }
+  function updateWeeks() {
+    if (!weeksPreview) return;
+    const done = Number(yearsDone?.value || 0) * 52;
+    const future = Number(yearsFuture?.value || 0) * 52 * (Number(monthsPerYear?.value || 0) / 12);
+    weeksPreview.textContent = Math.round((done + future) * 100) / 100;
   }
   scenarioRadios.forEach(radio => radio.addEventListener('change', syncScenario));
+  birthDate?.addEventListener('change', updateAge);
+  [yearsDone, yearsFuture, monthsPerYear].forEach(input => input?.addEventListener('input', updateWeeks));
   syncScenario();
+  updateWeeks();
 </script>
 {% endblock %}

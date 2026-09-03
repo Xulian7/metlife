@@ -21,6 +21,8 @@ h2 { margin-top: 0; font-size: 20px; }
 .grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 table { width: 100%; border-collapse: collapse; }
 th, td { border-bottom: 1px solid var(--line); text-align: left; padding: 11px; vertical-align: top; }
+th { color: #344054; font-size: 13px; }
+td small, th small { color: var(--muted); }
 .badge { display: inline-block; border-radius: 999px; background: #e6f4f1; color: #006b5b; padding: 4px 9px; font-size: 12px; font-weight: 700; }
 .form-grid p { display: grid; grid-template-columns: 220px 1fr; gap: 12px; align-items: center; }
 input, select, textarea { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 9px 10px; font: inherit; background: white; }
@@ -51,10 +53,26 @@ textarea { min-height: 90px; }
 .facts { display: grid; grid-template-columns: 140px 1fr; gap: 10px 14px; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; font-weight: 700; }
+.simulator-form { display: grid; gap: 16px; }
+.simulator-grid { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 16px; align-items: start; }
+.compact-section { box-shadow: none; }
+.compact-section h2 { font-size: 17px; }
+.field-row { display: grid; gap: 7px; margin: 0 0 13px; }
+.field-row label { color: #344054; font-weight: 800; font-size: 13px; }
+.field-row small { color: var(--muted); line-height: 1.35; }
+.result-grid { display: grid; grid-template-columns: repeat(2, minmax(260px, 1fr)); gap: 18px; margin-bottom: 18px; }
+.compact-table th { width: 46%; }
+.compact-table td { font-weight: 700; color: var(--ink); }
+.table-scroll { overflow-x: auto; }
+.alert-stack { display: grid; gap: 8px; margin-bottom: 18px; }
+.alert-stack p { margin: 0; border-left: 4px solid var(--warn); background: #fff7ed; color: #7c2d12; padding: 12px 14px; border-radius: 6px; }
+.source-list { display: grid; gap: 10px; }
+.source-list p { margin: 0; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.source-list p:last-child { border-bottom: 0; padding-bottom: 0; }
 @media (max-width: 860px) {
   body { grid-template-columns: 1fr; }
   .sidebar { position: static; }
-  .kpis, .grid-two { grid-template-columns: 1fr; }
+  .kpis, .grid-two, .simulator-grid, .result-grid { grid-template-columns: 1fr; }
   .hero, .topbar { align-items: flex-start; flex-direction: column; }
   .form-grid p, .form-columns, .facts { grid-template-columns: 1fr; }
 }

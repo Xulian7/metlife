@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Estudio pensional auditable</p>
+    <h1>{{ simulacion.cliente }}</h1>
+    <p>{{ simulacion.tipo }}. Motor {{ simulacion.version_motor }} · {{ simulacion.normativa_version }}</p>
+  </div>
+  <div class="actions">
+    <a class="button secondary" href="{% url 'simuladores:list' %}">Simulaciones</a>
+    <a class="button" href="{% url 'simuladores:brechas_create' simulacion.cliente_id %}">Nueva simulacion</a>
+  </div>
+</section>
+
+{% if alerts %}
+  <section class="alert-stack">
+    {% for alert in alerts %}
+      <p>{{ alert }}</p>
+    {% endfor %}
+  </section>
+{% endif %}
+
+<section class="result-grid">
+  <article class="panel">
+    <h2>Resumen del caso</h2>
+    <table class="compact-table">
+      <tbody>
+        {% for row in resumen_rows %}
+          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+        {% empty %}
+          <tr><td>Sin resumen disponible.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+  <article class="panel">
+    <h2>Variables de cumplimiento</h2>
+    <table class="compact-table">
+      <tbody>
+        {% for row in contexto_rows %}
+          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+        {% empty %}
+          <tr><td>Sin variables de cumplimiento.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+</section>
+
+{% if comparison_rows %}
+  <section class="panel">
+    <h2>Comparacion pensional</h2>
+    <table>
+      <tbody>
+        {% for row in comparison_rows %}
+          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+{% endif %}
+
+{% if projection_rows %}
+  <section class="panel">
+    <h2>Proyeccion por densidad de cotizacion</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Meses/ano</th>
+            <th>Semanas proyectadas</th>
+            <th>Edad pension RPM</th>
+            <th>Cumple RPM</th>
+            <th>Garantia minima RAIS</th>
+            <th>Pension RPM estimada</th>
+            <th>Pension RAIS estimada</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in projection_rows %}
+            <tr>
+              <td>{{ row.cotiza_meses_anio }}</td>
+              <td>{{ row.semanas_proyectadas }}</td>
+              <td>{{ row.edad_estimada_pension_rpm }}</td>
+              <td>{{ row.cumple_rpm|yesno:"Si,No" }}</td>
+              <td>{{ row.cumple_garantia_rais|yesno:"Si,No" }}</td>
+              <td>{{ row.pension_rpm_estimada }}</td>
+              <td>{{ row.pension_rais_estimada }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endif %}
+
+<section class="result-grid">
+  <article class="panel">
+    <h2>Panorama Ley 100</h2>
+    <table class="compact-table">
+      <tbody>
+        {% for row in ley100_rows %}
+          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+        {% empty %}
+          <tr><td>No aplica para esta simulacion.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+  <article class="panel">
+    <h2>Panorama Reforma</h2>
+    <table class="compact-table">
+      <tbody>
+        {% for row in reforma_rows %}
+          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+        {% empty %}
+          <tr><td>No aplica para esta simulacion.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+</section>
+
+<section class="result-grid">
+  <article class="panel">
+    <h2>Datos usados</h2>
+    <table class="compact-table">
+      <tbody>
+        {% for row in inputs_rows %}
+          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+  <article class="panel">
+    <h2>Fuentes y vigencia</h2>
+    <div class="source-list">
+      {% for source in sources %}
+        <p><a href="{{ source.url }}" target="_blank" rel="noopener">{{ source.nombre }}</a><br><small>{{ source.nota }}</small></p>
+      {% empty %}
+        <p>Sin fuentes anexas en el resultado.</p>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+{% endblock %}

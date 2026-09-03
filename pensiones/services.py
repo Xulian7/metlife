@@ -1,11 +1,15 @@
 from dataclasses import dataclass
+from datetime import date
 from decimal import Decimal, ROUND_HALF_UP
 
 from .models import FondoPensiones
 
 
-ENGINE_VERSION = "0.2.0"
+ENGINE_VERSION = "0.3.0"
 RULESET_VERSION = "colombia-pensiones-2026-09-borrador"
+WEEKS_PER_YEAR = Decimal("52")
+RPM_REQUIRED_WEEKS = Decimal("1300")
+RAIS_MINIMUM_GUARANTEE_WEEKS = Decimal("1150")
 
 FONDOS_PENSIONES_COLOMBIA_2026 = [
     {
@@ -67,27 +71,106 @@ class PensionInputs:
     anios_por_cotizar: Decimal
     capital_actual_rais: Decimal = Decimal("0")
     smmlv: Decimal = Decimal("1423500")
+    fecha_nacimiento: date | None = None
+    sexo: str = ""
+    edad_actual: Decimal | None = None
+    meses_cotizados_anio: Decimal = Decimal("12")
+    tasa_renta_mensual: Decimal = Decimal("0.005")
+    factor_capital_brecha: Decimal = Decimal("200")
+    factor_capital_fedesarrollo: Decimal = Decimal("377")
+    tasa_aporte_acumulacion: Decimal = Decimal("0.115")
+    tasa_descuento_neto_ley_100: Decimal = Decimal("0.88")
+    tasa_descuento_neto_reforma: Decimal = Decimal("0.875")
 
 
 def money(value: Decimal) -> Decimal:
     return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
+def number(value: Decimal) -> Decimal:
+    return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def calculate_age(born: date | None, today: date | None = None) -> Decimal | None:
+    if not born:
+        return None
+    today = today or date.today()
+    age = today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+    return Decimal(age)
+
+
+def normalizar_sexo(sexo: str) -> str:
+    value = (sexo or "").strip().lower()
+    if value in {"f", "femenino", "mujer"}:
+        return "femenino"
+    if value in {"m", "masculino", "hombre"}:
+        return "masculino"
+    return "no_informado"
+
+
+def edad_pension_referencia(sexo: str) -> Decimal:
+    return Decimal("57") if normalizar_sexo(sexo) == "femenino" else Decimal("62")
+
+
+def weeks_from_years(years: Decimal) -> Decimal:
+    return years * WEEKS_PER_YEAR
+
+
+def years_until_weeks(current_weeks: Decimal, target_weeks: Decimal, months_per_year: Decimal) -> Decimal | None:
+    annual_weeks = WEEKS_PER_YEAR * (months_per_year / Decimal("12"))
+    if current_weeks >= target_weeks:
+        return Decimal("0")
+    if annual_weeks <= 0:
+        return None
+    return (target_weeks - current_weeks) / annual_weeks
+
+
+def pension_context(inputs: PensionInputs) -> dict:
+    edad = inputs.edad_actual if inputs.edad_actual is not None else calculate_age(inputs.fecha_nacimiento)
+    edad_ref = edad_pension_referencia(inputs.sexo)
+    semanas_actuales = weeks_from_years(inputs.anios_cotizados)
+    semanas_futuras = weeks_from_years(inputs.anios_por_cotizar) * (inputs.meses_cotizados_anio / Decimal("12"))
+    semanas_proyectadas = semanas_actuales + semanas_futuras
+    years_to_1300 = years_until_weeks(semanas_actuales, RPM_REQUIRED_WEEKS, inputs.meses_cotizados_anio)
+    edad_cumple_semanas = None if edad is None or years_to_1300 is None else edad + years_to_1300
+    edad_estimada_rpm = edad_ref
+    if edad_cumple_semanas is not None and edad_cumple_semanas > edad_ref:
+        edad_estimada_rpm = edad_cumple_semanas
+    return {
+        "sexo_normalizado": normalizar_sexo(inputs.sexo),
+        "edad_actual": number(edad) if edad is not None else None,
+        "edad_requisito_rpm": edad_ref,
+        "semanas_actuales": number(semanas_actuales),
+        "semanas_proyectadas": number(semanas_proyectadas),
+        "semanas_faltantes_rpm": number(max(RPM_REQUIRED_WEEKS - semanas_actuales, Decimal("0"))),
+        "semanas_faltantes_rais_garantia": number(max(RAIS_MINIMUM_GUARANTEE_WEEKS - semanas_actuales, Decimal("0"))),
+        "edad_estimada_cumplimiento_semanas": number(edad_cumple_semanas) if edad_cumple_semanas is not None else None,
+        "edad_estimada_pension_rpm": number(edad_estimada_rpm) if edad is not None else None,
+        "cumple_semanas_rpm_proyectadas": semanas_proyectadas >= RPM_REQUIRED_WEEKS,
+        "cumple_garantia_minima_rais_proyectada": semanas_proyectadas >= RAIS_MINIMUM_GUARANTEE_WEEKS,
+    }
+
+
 def calcular_panorama_ley_100(inputs: PensionInputs) -> dict:
-    minimo_neto = inputs.smmlv * Decimal("0.88")
+    minimo_neto = inputs.smmlv * inputs.tasa_descuento_neto_ley_100
     invalidez_base = inputs.ibc_ultimos_10_anios * Decimal("0.66")
     sobrevivencia_base = inputs.ibc_ultimos_10_anios * Decimal("0.69")
-    pension_invalidez = invalidez_base * Decimal("0.88") if invalidez_base > minimo_neto else minimo_neto
-    pension_sobrevivencia = sobrevivencia_base * Decimal("0.88") if sobrevivencia_base > minimo_neto else minimo_neto
+    pension_invalidez = invalidez_base * inputs.tasa_descuento_neto_ley_100 if invalidez_base > minimo_neto else minimo_neto
+    pension_sobrevivencia = sobrevivencia_base * inputs.tasa_descuento_neto_ley_100 if sobrevivencia_base > minimo_neto else minimo_neto
     pension_colpensiones_base = inputs.ibc_actual * Decimal("0.80") * Decimal("0.875")
-    pension_colpensiones = inputs.ibc_actual * Decimal("0.80") * Decimal("0.88") if pension_colpensiones_base > minimo_neto else minimo_neto
-    capital_fedesarrollo = inputs.smmlv * Decimal("377")
-    acumulacion = inputs.ibc_actual * Decimal("0.115") * Decimal("12") * (inputs.anios_cotizados + inputs.anios_por_cotizar)
-    pension_privada_bruta = inputs.smmlv * (acumulacion / capital_fedesarrollo) * Decimal("0.88")
+    pension_colpensiones = inputs.ibc_actual * Decimal("0.80") * inputs.tasa_descuento_neto_ley_100 if pension_colpensiones_base > minimo_neto else minimo_neto
+    capital_fedesarrollo = inputs.smmlv * inputs.factor_capital_fedesarrollo
+    acumulacion = inputs.ibc_actual * inputs.tasa_aporte_acumulacion * Decimal("12") * (inputs.anios_cotizados + inputs.anios_por_cotizar) + inputs.capital_actual_rais
+    pension_privada_bruta = inputs.smmlv * (acumulacion / capital_fedesarrollo) * inputs.tasa_descuento_neto_ley_100
     pension_privada = max(pension_privada_bruta, minimo_neto)
+    contexto = pension_context(inputs)
     return {
         "engine_version": ENGINE_VERSION,
         "ruleset_version": RULESET_VERSION,
+        "contexto": contexto,
+        "minimo_neto": money(minimo_neto),
+        "capital_fedesarrollo": money(capital_fedesarrollo),
+        "acumulacion_proyectada_rais": money(acumulacion),
         "pension_invalidez": money(pension_invalidez),
         "pension_sobrevivencia": money(pension_sobrevivencia),
         "pension_colpensiones": money(pension_colpensiones),
@@ -96,30 +179,35 @@ def calcular_panorama_ley_100(inputs: PensionInputs) -> dict:
         "brecha_invalidez": money(inputs.ingreso_mensual - pension_invalidez),
         "brecha_vejez_colpensiones": money(inputs.ingreso_mensual - pension_colpensiones),
         "brecha_vejez_privada": money(inputs.ingreso_mensual - pension_privada),
-        "capital_fallecimiento": money((inputs.ingreso_mensual - pension_sobrevivencia) * Decimal("200")),
-        "capital_invalidez": money((inputs.ingreso_mensual - pension_invalidez) * Decimal("200")),
-        "capital_vejez_colpensiones": money((inputs.ingreso_mensual - pension_colpensiones) * Decimal("200")),
-        "capital_vejez_privada": money((inputs.ingreso_mensual - pension_privada) * Decimal("200")),
+        "capital_fallecimiento": money((inputs.ingreso_mensual - pension_sobrevivencia) * inputs.factor_capital_brecha),
+        "capital_invalidez": money((inputs.ingreso_mensual - pension_invalidez) * inputs.factor_capital_brecha),
+        "capital_vejez_colpensiones": money((inputs.ingreso_mensual - pension_colpensiones) * inputs.factor_capital_brecha),
+        "capital_vejez_privada": money((inputs.ingreso_mensual - pension_privada) * inputs.factor_capital_brecha),
     }
 
 
 def calcular_panorama_reforma(inputs: PensionInputs) -> dict:
-    minimo_neto = inputs.smmlv * Decimal("0.875")
+    minimo_neto = inputs.smmlv * inputs.tasa_descuento_neto_reforma
     ibc_colpensiones = min(inputs.ibc_actual, inputs.smmlv * Decimal("2.3"))
     ibc_accai = max(inputs.ibc_actual - ibc_colpensiones, Decimal("0"))
     pension_invalidez = max(inputs.ibc_ultimos_10_anios * Decimal("0.66") * Decimal("0.88"), minimo_neto)
     pension_sobrevivencia = max(inputs.ibc_ultimos_10_anios * Decimal("0.69") * Decimal("0.88"), minimo_neto)
     pension_colpensiones = max(ibc_colpensiones * Decimal("0.71") * Decimal("0.88"), minimo_neto)
-    capital_fedesarrollo = inputs.smmlv * Decimal("377")
-    acumulacion_accai = ibc_accai * Decimal("0.115") * Decimal("12") * (inputs.anios_cotizados + inputs.anios_por_cotizar) + inputs.capital_actual_rais
-    pension_accai = (Decimal("1.1") * inputs.smmlv * acumulacion_accai / capital_fedesarrollo) * Decimal("0.88") if capital_fedesarrollo else Decimal("0")
+    capital_fedesarrollo = inputs.smmlv * inputs.factor_capital_fedesarrollo
+    acumulacion_accai = ibc_accai * inputs.tasa_aporte_acumulacion * Decimal("12") * (inputs.anios_cotizados + inputs.anios_por_cotizar) + inputs.capital_actual_rais
+    pension_accai = (Decimal("1.1") * inputs.smmlv * acumulacion_accai / capital_fedesarrollo) * inputs.tasa_descuento_neto_ley_100 if capital_fedesarrollo else Decimal("0")
     pension_total = pension_colpensiones + pension_accai
+    contexto = pension_context(inputs)
     return {
         "engine_version": ENGINE_VERSION,
         "ruleset_version": f"{RULESET_VERSION}-reforma-no-vigencia-plena",
         "estado_normativo": "Modelo consultivo no activado como regla juridica vigente plena",
+        "contexto": contexto,
+        "minimo_neto": money(minimo_neto),
+        "capital_fedesarrollo": money(capital_fedesarrollo),
         "ibc_colpensiones": money(ibc_colpensiones),
         "ibc_accai": money(ibc_accai),
+        "acumulacion_proyectada_accai": money(acumulacion_accai),
         "pension_invalidez": money(pension_invalidez),
         "pension_sobrevivencia": money(pension_sobrevivencia),
         "pension_colpensiones": money(pension_colpensiones),
@@ -128,7 +216,112 @@ def calcular_panorama_reforma(inputs: PensionInputs) -> dict:
         "brecha_fallecimiento": money(inputs.ingreso_mensual - pension_sobrevivencia),
         "brecha_invalidez": money(inputs.ingreso_mensual - pension_invalidez),
         "brecha_vejez_sistema": money(inputs.ingreso_mensual - pension_total),
-        "capital_fallecimiento": money((inputs.ingreso_mensual - pension_sobrevivencia) * Decimal("200")),
-        "capital_invalidez": money((inputs.ingreso_mensual - pension_invalidez) * Decimal("200")),
-        "capital_vejez_sistema": money((inputs.ingreso_mensual - pension_total) * Decimal("200")),
+        "capital_fallecimiento": money((inputs.ingreso_mensual - pension_sobrevivencia) * inputs.factor_capital_brecha),
+        "capital_invalidez": money((inputs.ingreso_mensual - pension_invalidez) * inputs.factor_capital_brecha),
+        "capital_vejez_sistema": money((inputs.ingreso_mensual - pension_total) * inputs.factor_capital_brecha),
     }
+
+
+def calcular_comparativo_pensional(inputs: PensionInputs) -> dict:
+    ley_100 = calcular_panorama_ley_100(inputs)
+    reforma = calcular_panorama_reforma(inputs)
+    contexto = pension_context(inputs)
+    return {
+        "engine_version": ENGINE_VERSION,
+        "ruleset_version": f"{RULESET_VERSION}-comparativo",
+        "contexto": contexto,
+        "resumen": {
+            "ingreso_mensual": money(inputs.ingreso_mensual),
+            "ibc_actual": money(inputs.ibc_actual),
+            "ibc_ultimos_10_anios": money(inputs.ibc_ultimos_10_anios),
+            "smmlv": money(inputs.smmlv),
+            "edad_actual": contexto["edad_actual"],
+            "edad_requisito_rpm": contexto["edad_requisito_rpm"],
+            "semanas_actuales": contexto["semanas_actuales"],
+            "semanas_proyectadas": contexto["semanas_proyectadas"],
+            "fondo_actual": "",
+        },
+        "ley_100": ley_100,
+        "reforma": reforma,
+        "comparacion": {
+            "pension_vejez_rpm_ley_100": ley_100["pension_colpensiones"],
+            "pension_vejez_rais_ley_100": ley_100["pension_privada"],
+            "pension_total_reforma": reforma["pension_total_sistema"],
+            "brecha_menor_vejez": min(
+                ley_100["brecha_vejez_colpensiones"],
+                ley_100["brecha_vejez_privada"],
+                reforma["brecha_vejez_sistema"],
+            ),
+        },
+        "proyecciones": build_projection_rows(inputs),
+        "alertas": build_alerts(inputs, contexto),
+        "fuentes": OFFICIAL_SOURCES,
+    }
+
+
+def build_projection_rows(inputs: PensionInputs) -> list[dict]:
+    rows = []
+    for months in [Decimal("12"), Decimal("9"), Decimal("6"), Decimal("0")]:
+        projected = PensionInputs(**{**inputs.__dict__, "meses_cotizados_anio": months})
+        contexto = pension_context(projected)
+        ley_100 = calcular_panorama_ley_100(projected)
+        rows.append(
+            {
+                "cotiza_meses_anio": number(months),
+                "semanas_proyectadas": contexto["semanas_proyectadas"],
+                "edad_estimada_pension_rpm": contexto["edad_estimada_pension_rpm"],
+                "cumple_rpm": contexto["cumple_semanas_rpm_proyectadas"],
+                "cumple_garantia_rais": contexto["cumple_garantia_minima_rais_proyectada"],
+                "pension_rpm_estimada": ley_100["pension_colpensiones"],
+                "pension_rais_estimada": ley_100["pension_privada"],
+            }
+        )
+    return rows
+
+
+def build_alerts(inputs: PensionInputs, contexto: dict) -> list[str]:
+    alerts = []
+    if contexto["sexo_normalizado"] == "no_informado":
+        alerts.append("Sexo no informado: se usa edad de referencia conservadora de 62 anos. Completar este dato mejora la proyeccion.")
+    if not contexto["cumple_semanas_rpm_proyectadas"]:
+        alerts.append("Con la densidad de cotizacion indicada no se proyectan 1.300 semanas para RPM; revisar alternativas o continuidad de aportes.")
+    if not contexto["cumple_garantia_minima_rais_proyectada"]:
+        alerts.append("No se proyectan 1.150 semanas para garantia de pension minima RAIS; esta alerta no reemplaza estudio de capital individual.")
+    if inputs.ibc_actual < inputs.smmlv:
+        alerts.append("IBC actual inferior al SMMLV parametrizado; validar dato antes de usar resultados en asesoria.")
+    alerts.append("La hoja Reforma es un escenario consultivo: Ley 2381 de 2024 no se activa como vigencia plena por defecto.")
+    return alerts
+
+
+OFFICIAL_SOURCES = [
+    {
+        "nombre": "Colpensiones - requisitos RPM",
+        "url": "https://www.colpensiones.gov.co/publicaciones/3650/preguntas-frecuentes/",
+        "nota": "Edad 57 mujeres, 62 hombres y 1.300 semanas para pension de vejez en RPM.",
+    },
+    {
+        "nombre": "Colpensiones - funcionamiento sistema pensional",
+        "url": "https://www.colpensiones.gov.co/publicaciones/2841/como-funciona-el-sistema-pensional-colombiano/",
+        "nota": "Alternativas Colpensiones y fondos privados.",
+    },
+    {
+        "nombre": "Superfinanciera Circular 12 de 2024",
+        "url": "https://normativa.colpensiones.gov.co/colpens/compilacion/docs/circular_superfinanciera_0012_2024.htm",
+        "nota": "Proyecciones de asesoría por densidad de cotización: 12, 9, 6 o 0 meses al ano.",
+    },
+    {
+        "nombre": "Corte Constitucional Auto 841 de 2025",
+        "url": "https://www.corteconstitucional.gov.co/relatoria/autos/2025/a841-25.htm",
+        "nota": "Suspension de entrada en vigencia general de Ley 2381 de 2024.",
+    },
+    {
+        "nombre": "Corte Constitucional C-327 de 2025",
+        "url": "https://www.corteconstitucional.gov.co/relatoria/2025/C-327-25.htm",
+        "nota": "Reitera suspension con excepciones de Ley 2381 de 2024.",
+    },
+    {
+        "nombre": "Corte Constitucional C-054 de 2024",
+        "url": "https://normativa.colpensiones.gov.co/colpens/compilacion/docs/c-054_2024.htm",
+        "nota": "Garantia de pension minima RAIS: edad, 1.150 semanas e insuficiencia de capital.",
+    },
+]

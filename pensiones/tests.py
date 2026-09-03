@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.test import TestCase
 
 from .models import FondoPensiones
-from .services import PensionInputs, calcular_panorama_ley_100, calcular_panorama_reforma, ensure_default_pension_funds
+from .services import PensionInputs, calcular_comparativo_pensional, calcular_panorama_ley_100, calcular_panorama_reforma, ensure_default_pension_funds
 
 
 class PensionEngineTests(TestCase):
@@ -43,5 +43,23 @@ class PensionEngineTests(TestCase):
         self.assertEqual(result["ibc_colpensiones"], Decimal("3274050.00"))
         self.assertEqual(result["ibc_accai"], Decimal("1725950.00"))
         self.assertIn("estado_normativo", result)
+
+    def test_comparative_projection_includes_legal_milestones(self):
+        result = calcular_comparativo_pensional(
+            PensionInputs(
+                ingreso_mensual=Decimal("4000000"),
+                ibc_actual=Decimal("3000000"),
+                ibc_ultimos_10_anios=Decimal("2800000"),
+                anios_cotizados=Decimal("12"),
+                anios_por_cotizar=Decimal("18"),
+                meses_cotizados_anio=Decimal("9"),
+                smmlv=Decimal("1423500"),
+                sexo="femenino",
+            )
+        )
+        self.assertEqual(result["contexto"]["edad_requisito_rpm"], Decimal("57"))
+        self.assertEqual(result["contexto"]["semanas_actuales"], Decimal("624.00"))
+        self.assertEqual(len(result["proyecciones"]), 4)
+        self.assertIn("fuentes", result)
 
 # Create your tests here.

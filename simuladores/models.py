@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 
 from clientes.models import Cliente
 
@@ -22,5 +23,8 @@ class Simulacion(models.Model):
 
     def __str__(self) -> str:
         return f"{self.tipo} - {self.cliente} - {self.fecha:%Y-%m-%d}"
+
+    def get_absolute_url(self):
+        return reverse("simuladores:detail", args=[self.pk])
 
 # Create your models here.
