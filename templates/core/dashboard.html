@@ -9,7 +9,10 @@
   <a class="button" href="{% url 'clientes:create' %}">Nuevo cliente</a>
 </section>
 <section class="dashboard-visual" aria-label="Resumen visual de consultoría pensional">
-  <img src="{% static 'img/dashboard-top.svg' %}" alt="">
+  <div class="dashboard-visual-fallback" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+  <img src="{% static 'img/dashboard-top.svg' %}" alt="" onerror="this.hidden=true">
 </section>
 <section class="kpis">
   <article><span>Clientes</span><strong>{{ clientes_total }}</strong></article>
