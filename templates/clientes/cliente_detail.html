@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div><h1>360 del cliente</h1><p>{{ cliente.nombre_completo }} {% if cliente.edad %}- {{ cliente.edad }} anos{% endif %}</p></div>
+  <div class="actions"><a class="button" href="{% url 'leads:create' %}">Nuevo lead</a><a class="button secondary" href="{% url 'visitas:create' %}">Nueva visita</a><a class="button secondary" href="{% url 'simuladores:brechas_create' cliente.id %}">Simular brechas</a></div>
+</section>
+<section class="grid-two">
+  <div class="panel">
+    <h2>Perfil</h2>
+    <p>{{ cliente.ocupacion }} {{ cliente.empresa }}</p>
+    <p>{{ cliente.email }} {{ cliente.whatsapp }}</p>
+    <p>Ingresos: {{ cliente.ingresos|default:"Sin dato" }}</p>
+  </div>
+  <div class="panel">
+    <h2>Timeline</h2>
+    {% for event in cliente.timeline.all %}
+      <div class="timeline-item"><span>{{ event.occurred_at }}</span><strong>{{ event.titulo }}</strong><p>{{ event.descripcion }}</p></div>
+    {% empty %}<p>Sin eventos todavia.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

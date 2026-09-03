@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Dashboard comercial</h1>
+  <a class="button" href="{% url 'clientes:create' %}">Nuevo prospecto</a>
+</section>
+<section class="kpis">
+  <article><span>Clientes</span><strong>{{ clientes_total }}</strong></article>
+  <article><span>Leads activos</span><strong>{{ leads_activos }}</strong></article>
+  <article><span>Nuevos</span><strong>{{ leads_nuevos }}</strong></article>
+  <article><span>Citas proximas</span><strong>{{ citas_proximas }}</strong></article>
+  <article><span>Visitas mes</span><strong>{{ visitas_mes }}</strong></article>
+  <article><span>Seguimientos hoy</span><strong>{{ seguimientos_hoy }}</strong></article>
+  <article><span>Vencidos</span><strong>{{ seguimientos_vencidos }}</strong></article>
+  <article><span>Simulaciones</span><strong>{{ simulaciones }}</strong></article>
+</section>
+<section class="grid-two">
+  <div class="panel">
+    <h2>Pipeline</h2>
+    {% for row in pipeline %}
+      <div class="pipeline-row"><span>{{ row.etapa__nombre|default:"Sin etapa" }}</span><strong>{{ row.total }}</strong></div>
+    {% empty %}<p>Sin leads todavia.</p>{% endfor %}
+  </div>
+  <div class="panel">
+    <h2>Proximos seguimientos</h2>
+    {% for item in proximos_seguimientos %}
+      <p><strong>{{ item.fecha }}</strong><br>{{ item.lead.cliente }} - {{ item.tipo }}</p>
+    {% empty %}<p>No hay seguimientos pendientes.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

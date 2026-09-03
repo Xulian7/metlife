@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero"><h1>Seguros y proteccion</h1></section>
+<section class="panel">
+  {% for diagnostico in diagnosticos %}
+    <p><strong>{{ diagnostico.cliente }}</strong> - brecha {{ diagnostico.brecha_proteccion }}</p>
+  {% empty %}
+    <p>Sin diagnosticos de proteccion.</p>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <h1>{{ view.model._meta.verbose_name|capfirst }}</h1>
+  <form method="post" enctype="multipart/form-data" class="form-grid">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="actions">
+      <button type="submit">Guardar</button>
+      <a class="button secondary" href="javascript:history.back()">Volver</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

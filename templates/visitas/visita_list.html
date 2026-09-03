@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero"><h1>Visitas</h1><a class="button" href="{% url 'visitas:create' %}">Registrar visita</a></section>
+<section class="panel"><table><thead><tr><th>Fecha</th><th>Cliente</th><th>Estado</th><th>Objetivo</th></tr></thead><tbody>
+{% for visita in visitas %}<tr><td>{{ visita.fecha }}</td><td>{{ visita.cliente }}</td><td><span class="badge">{{ visita.estado }}</span></td><td>{{ visita.objetivo }}</td></tr>{% empty %}<tr><td colspan="4">Sin visitas.</td></tr>{% endfor %}
+</tbody></table></section>
+{% endblock %}

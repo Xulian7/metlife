@@ -1,0 +1,20 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ingreso</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="login-page">
+  <main class="login-box">
+    <h1>Consultoria 360</h1>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Ingresar</button>
+    </form>
+  </main>
+</body>
+</html>

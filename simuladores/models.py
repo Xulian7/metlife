@@ -1,0 +1,26 @@
+from django.conf import settings
+from django.db import models
+
+from clientes.models import Cliente
+
+
+class Simulacion(models.Model):
+    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, related_name="simulaciones")
+    consultor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    fecha = models.DateTimeField(auto_now_add=True)
+    tipo = models.CharField(max_length=80)
+    version_motor = models.CharField(max_length=40)
+    inputs_json = models.JSONField()
+    resultados_json = models.JSONField()
+    normativa_version = models.CharField(max_length=120)
+    observaciones = models.TextField(blank=True)
+    activa = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-fecha"]
+        indexes = [models.Index(fields=["cliente", "tipo", "fecha"])]
+
+    def __str__(self) -> str:
+        return f"{self.tipo} - {self.cliente} - {self.fecha:%Y-%m-%d}"
+
+# Create your models here.

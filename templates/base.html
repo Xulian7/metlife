@@ -1,0 +1,38 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MetLife Consultoria</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">Consultoria 360</div>
+    <nav>
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+      <a href="{% url 'clientes:list' %}">Clientes</a>
+      <a href="{% url 'leads:list' %}">Leads</a>
+      <a href="{% url 'visitas:list' %}">Visitas</a>
+      <a href="{% url 'consultoria:list' %}">Consultoria</a>
+      <a href="{% url 'simuladores:list' %}">Simulaciones</a>
+      {% if request.user.is_staff %}<a href="{% url 'consultores:list' %}">Consultores</a>{% endif %}
+      <a href="{% url 'admin:index' %}">Admin</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+        <span>America/Bogota</span>
+      </div>
+      {% if request.user.is_authenticated %}
+        <form action="{% url 'logout' %}" method="post">{% csrf_token %}<button class="ghost">Salir</button></form>
+      {% endif %}
+    </header>
+    {% if messages %}{% for message in messages %}<p class="notice">{{ message }}</p>{% endfor %}{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

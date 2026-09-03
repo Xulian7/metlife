@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <h1>Simular brechas para {{ cliente }}</h1>
+  <form method="post" class="form-grid">{% csrf_token %}{{ form.as_p }}<button>Calcular y guardar</button></form>
+</section>
+{% endblock %}

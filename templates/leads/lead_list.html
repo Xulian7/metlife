@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero"><h1>Pipeline comercial</h1><a class="button" href="{% url 'leads:create' %}">Nuevo lead</a></section>
+<section class="panel"><table><thead><tr><th>Cliente</th><th>Etapa</th><th>Producto</th><th>Valor</th><th>Seguimiento</th></tr></thead><tbody>
+{% for lead in leads %}
+<tr><td><a href="{{ lead.get_absolute_url }}">{{ lead.cliente }}</a></td><td><span class="badge">{{ lead.etapa }}</span></td><td>{{ lead.producto_interes }}</td><td>{{ lead.valor_potencial }}</td><td>{{ lead.proximo_seguimiento }}</td></tr>
+{% empty %}<tr><td colspan="5">Sin leads.</td></tr>{% endfor %}
+</tbody></table></section>
+{% endblock %}

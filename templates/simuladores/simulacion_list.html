@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero"><h1>Simulaciones</h1></section>
+<section class="panel">{% for simulacion in simulaciones %}<p><strong>{{ simulacion.cliente }}</strong> - {{ simulacion.tipo }} - motor {{ simulacion.version_motor }}</p>{% empty %}<p>Sin simulaciones.</p>{% endfor %}</section>
+{% endblock %}

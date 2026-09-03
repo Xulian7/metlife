@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero"><h1>Clientes y prospectos</h1><a class="button" href="{% url 'clientes:create' %}">Crear</a></section>
+<form class="search"><input name="q" value="{{ request.GET.q }}" placeholder="Buscar por nombre o documento"><button>Buscar</button></form>
+<section class="panel"><table><thead><tr><th>Nombre</th><th>Estado</th><th>Consultor</th><th>Proxima accion</th></tr></thead><tbody>
+{% for cliente in clientes %}
+<tr><td><a href="{{ cliente.get_absolute_url }}">{{ cliente }}</a></td><td><span class="badge">{{ cliente.estado }}</span></td><td>{{ cliente.consultor }}</td><td>{{ cliente.proxima_accion }}</td></tr>
+{% empty %}<tr><td colspan="4">Aun no hay registros.</td></tr>{% endfor %}
+</tbody></table></section>
+{% endblock %}
