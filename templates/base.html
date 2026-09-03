@@ -12,13 +12,13 @@
   <aside class="sidebar">
     <div class="brand">Consultoría 360</div>
     <nav>
-      <a href="{% url 'dashboard' %}">Dashboard</a>
-      <a href="{% url 'clientes:list' %}">Clientes</a>
-      <a href="{% url 'visitas:list' %}">Visitas</a>
-      <a href="{% url 'consultoria:list' %}">Consultoría</a>
-      <a href="{% url 'simuladores:list' %}">Simulaciones</a>
-      {% if request.user.is_staff %}<a href="{% url 'consultores:list' %}">Consultores</a>{% endif %}
-      <a href="{% url 'admin:index' %}">Admin</a>
+      <a href="{% url 'dashboard' %}"><span class="nav-icon" aria-hidden="true">▦</span>Dashboard</a>
+      <a href="{% url 'clientes:list' %}"><span class="nav-icon" aria-hidden="true">○</span>Clientes</a>
+      <a href="{% url 'visitas:list' %}"><span class="nav-icon" aria-hidden="true">◇</span>Visitas</a>
+      <a href="{% url 'consultoria:list' %}"><span class="nav-icon" aria-hidden="true">◧</span>Consultoría</a>
+      <a href="{% url 'simuladores:list' %}"><span class="nav-icon" aria-hidden="true">∑</span>Simulaciones</a>
+      {% if request.user.is_staff %}<a href="{% url 'consultores:list' %}"><span class="nav-icon" aria-hidden="true">□</span>Consultores</a>{% endif %}
+      <a href="{% url 'admin:index' %}"><span class="nav-icon" aria-hidden="true">⚙</span>Admin</a>
     </nav>
   </aside>
   <main class="main">

@@ -21,50 +21,50 @@
 {% endif %}
 
 <section class="result-grid">
-  <article class="panel">
-    <h2>Resumen del caso</h2>
+  <details class="panel module-card" open>
+    <summary><span class="module-icon" aria-hidden="true">▦</span><h2>Resumen del caso</h2></summary>
     <table class="compact-table">
       <tbody>
         {% for row in resumen_rows %}
-          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+          <tr><th>{{ row.label }}</th><td{% if row.is_money %} class="money-cell"{% endif %}>{{ row.value }}</td></tr>
         {% empty %}
           <tr><td>Sin resumen disponible.</td></tr>
         {% endfor %}
       </tbody>
     </table>
-  </article>
-  <article class="panel">
-    <h2>Variables de cumplimiento</h2>
+  </details>
+  <details class="panel module-card" open>
+    <summary><span class="module-icon" aria-hidden="true">✓</span><h2>Variables de cumplimiento</h2></summary>
     <table class="compact-table">
       <tbody>
         {% for row in contexto_rows %}
-          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+          <tr><th>{{ row.label }}</th><td{% if row.is_money %} class="money-cell"{% endif %}>{{ row.value }}</td></tr>
         {% empty %}
           <tr><td>Sin variables de cumplimiento.</td></tr>
         {% endfor %}
       </tbody>
     </table>
-  </article>
+  </details>
 </section>
 
 {% if comparison_rows %}
-  <section class="panel">
-    <h2>Comparación pensional</h2>
+  <details class="panel module-card" open>
+    <summary><span class="module-icon" aria-hidden="true">⇄</span><h2>Comparación pensional</h2></summary>
     <table>
       <tbody>
         {% for row in comparison_rows %}
-          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+          <tr><th>{{ row.label }}</th><td{% if row.is_money %} class="money-cell"{% endif %}>{{ row.value }}</td></tr>
         {% endfor %}
       </tbody>
     </table>
-  </section>
+  </details>
 {% endif %}
 
 {% if projection_rows %}
-  <section class="panel">
-    <h2>Proyección por densidad de cotización</h2>
+  <details class="panel module-card" open>
+    <summary><span class="module-icon" aria-hidden="true">⌁</span><h2>Proyección por densidad de cotización</h2></summary>
     <div class="table-scroll">
-      <table>
+      <table class="data-table projection-table">
         <thead>
           <tr>
             <th>Meses/año</th>
@@ -82,58 +82,58 @@
               <td>{{ row.cotiza_meses_anio }}</td>
               <td>{{ row.semanas_proyectadas }}</td>
               <td>{{ row.edad_estimada_pension_rpm }}</td>
-              <td>{{ row.cumple_rpm|yesno:"Si,No" }}</td>
-              <td>{{ row.cumple_garantia_rais|yesno:"Si,No" }}</td>
-              <td>{{ row.pension_rpm_estimada }}</td>
-              <td>{{ row.pension_rais_estimada }}</td>
+              <td>{{ row.cumple_rpm }}</td>
+              <td>{{ row.cumple_garantia_rais }}</td>
+              <td class="money-cell">{{ row.pension_rpm_estimada }}</td>
+              <td class="money-cell">{{ row.pension_rais_estimada }}</td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-  </section>
+  </details>
 {% endif %}
 
 <section class="result-grid">
-  <article class="panel">
-    <h2>Panorama Ley 100</h2>
+  <details class="panel module-card" open>
+    <summary><span class="module-icon" aria-hidden="true">§</span><h2>Panorama Ley 100</h2></summary>
     <table class="compact-table">
       <tbody>
         {% for row in ley100_rows %}
-          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+          <tr><th>{{ row.label }}</th><td{% if row.is_money %} class="money-cell"{% endif %}>{{ row.value }}</td></tr>
         {% empty %}
           <tr><td>No aplica para esta simulación.</td></tr>
         {% endfor %}
       </tbody>
     </table>
-  </article>
-  <article class="panel">
-    <h2>Panorama Reforma</h2>
+  </details>
+  <details class="panel module-card" open>
+    <summary><span class="module-icon" aria-hidden="true">◫</span><h2>Panorama Reforma</h2></summary>
     <table class="compact-table">
       <tbody>
         {% for row in reforma_rows %}
-          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+          <tr><th>{{ row.label }}</th><td{% if row.is_money %} class="money-cell"{% endif %}>{{ row.value }}</td></tr>
         {% empty %}
           <tr><td>No aplica para esta simulación.</td></tr>
         {% endfor %}
       </tbody>
     </table>
-  </article>
+  </details>
 </section>
 
 <section class="result-grid">
-  <article class="panel">
-    <h2>Datos usados</h2>
+  <details class="panel module-card">
+    <summary><span class="module-icon" aria-hidden="true">≡</span><h2>Datos usados</h2></summary>
     <table class="compact-table">
       <tbody>
         {% for row in inputs_rows %}
-          <tr><th>{{ row.label }}</th><td>{{ row.value }}</td></tr>
+          <tr><th>{{ row.label }}</th><td{% if row.is_money %} class="money-cell"{% endif %}>{{ row.value }}</td></tr>
         {% endfor %}
       </tbody>
     </table>
-  </article>
-  <article class="panel">
-    <h2>Fuentes y vigencia</h2>
+  </details>
+  <details class="panel module-card">
+    <summary><span class="module-icon" aria-hidden="true">↗</span><h2>Fuentes y vigencia</h2></summary>
     <div class="source-list">
       {% for source in sources %}
         <p><a href="{{ source.url }}" target="_blank" rel="noopener">{{ source.nombre }}</a><br><small>{{ source.nota }}</small></p>
@@ -141,6 +141,6 @@
         <p>Sin fuentes anexas en el resultado.</p>
       {% endfor %}
     </div>
-  </article>
+  </details>
 </section>
 {% endblock %}

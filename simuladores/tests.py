@@ -74,6 +74,8 @@ class SimuladorPersistenceTests(TestCase):
         response = self.client.get(reverse("simuladores:detail", args=[simulacion.pk]), follow=True)
         self.assertContains(response, "Proyección por densidad de cotización")
         self.assertContains(response, "Panorama Ley 100")
+        self.assertContains(response, "$ 4.000.000")
+        self.assertNotContains(response, "$ 4.000.000,00")
 
     def test_automatic_scenario_uses_transition_threshold(self):
         user = get_user_model().objects.create_user(username="consultor4")
